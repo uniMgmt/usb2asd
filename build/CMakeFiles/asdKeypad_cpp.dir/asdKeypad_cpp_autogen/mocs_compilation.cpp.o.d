@@ -345,4 +345,8 @@ CMakeFiles/asdKeypad_cpp.dir/asdKeypad_cpp_autogen/mocs_compilation.cpp.o: \
  /home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/UVLADIE3JM/moc_MockSerialCommunication.cpp \
  /home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/UVLADIE3JM/../../../src/MockSerialCommunication.h \
  /home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/UVLADIE3JM/moc_SerialCommunication.cpp \
- /home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/UVLADIE3JM/../../../src/SerialCommunication.h
+ /home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/UVLADIE3JM/../../../src/SerialCommunication.h \
+ /home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/UVLADIE3JM/moc_SetPriceDialog.cpp \
+ /home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/UVLADIE3JM/../../../src/SetPriceDialog.h \
+ /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QDialog \
+ /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qdialog.h

@@ -115,6 +115,12 @@
 			"MU",
 			"UVLADIE3JM/moc_SerialCommunication.cpp",
 			null
+		],
+		[
+			"/home/hcampa/asdKeypad_cpp/src/SetPriceDialog.h",
+			"MU",
+			"UVLADIE3JM/moc_SetPriceDialog.cpp",
+			null
 		]
 	],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
@@ -184,6 +190,7 @@
 			null
 		],
 		[ "/home/hcampa/asdKeypad_cpp/src/SerialCommunication.cpp", "MU", null ],
+		[ "/home/hcampa/asdKeypad_cpp/src/SetPriceDialog.cpp", "MU", null ],
 		[ "/home/hcampa/asdKeypad_cpp/src/main.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],

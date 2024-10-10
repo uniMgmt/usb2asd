@@ -152,3 +152,19 @@ void KeypressCommands::errorLog(const QString &error)
     qDebug() << "Error:" << error;
     // You can emit a signal here to update the UI error log
 }
+
+bool KeypressCommands::sendSetPriceCommand(int price)
+{
+    // Assuming the price-setting command is 0x10 followed by the price as a byte
+    QByteArray command;
+    command.append(static_cast<char>(0x10));  // Price-setting command
+    command.append(static_cast<char>(price)); // Price as a byte
+
+    if (sendCommand(command)) {
+        logAction(QString("Sent Set Price command: %1 cents").arg(price));
+        return true;
+    } else {
+        errorLog("Failed to send Set Price command");
+        return false;
+    }
+}

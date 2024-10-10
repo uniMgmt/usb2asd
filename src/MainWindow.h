@@ -63,6 +63,8 @@ private:
     void onAutoKeypressKeyPressed(const QString &key);
 
     QMenuBar *m_menuBar;
+
+    void showSetPriceDialog();
 };
 
 #endif // MAINWINDOW_H

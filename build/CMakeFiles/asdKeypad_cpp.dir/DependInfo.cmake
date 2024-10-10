@@ -14,6 +14,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/hcampa/asdKeypad_cpp/src/MainWindow.cpp" "CMakeFiles/asdKeypad_cpp.dir/src/MainWindow.cpp.o" "gcc" "CMakeFiles/asdKeypad_cpp.dir/src/MainWindow.cpp.o.d"
   "/home/hcampa/asdKeypad_cpp/src/MockSerialCommunication.cpp" "CMakeFiles/asdKeypad_cpp.dir/src/MockSerialCommunication.cpp.o" "gcc" "CMakeFiles/asdKeypad_cpp.dir/src/MockSerialCommunication.cpp.o.d"
   "/home/hcampa/asdKeypad_cpp/src/SerialCommunication.cpp" "CMakeFiles/asdKeypad_cpp.dir/src/SerialCommunication.cpp.o" "gcc" "CMakeFiles/asdKeypad_cpp.dir/src/SerialCommunication.cpp.o.d"
+  "/home/hcampa/asdKeypad_cpp/src/SetPriceDialog.cpp" "CMakeFiles/asdKeypad_cpp.dir/src/SetPriceDialog.cpp.o" "gcc" "CMakeFiles/asdKeypad_cpp.dir/src/SetPriceDialog.cpp.o.d"
   "/home/hcampa/asdKeypad_cpp/src/main.cpp" "CMakeFiles/asdKeypad_cpp.dir/src/main.cpp.o" "gcc" "CMakeFiles/asdKeypad_cpp.dir/src/main.cpp.o.d"
   )
 

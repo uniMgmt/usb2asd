@@ -19,6 +19,7 @@ add_executable(asdKeypad_cpp
     src/MockSerialCommunication.cpp
     src/AutoKeypress.cpp
     src/Colors.h
+    src/SetPriceDialog.cpp
 )
 
 target_link_libraries(asdKeypad_cpp

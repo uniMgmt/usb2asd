@@ -385,6 +385,11 @@ CMakeFiles/asdKeypad_cpp.dir/asdKeypad_cpp_autogen/mocs_compilation.cpp.o: asdKe
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qitemselectionmodel.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qset.h \
   ../src/AutoKeypress.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMenuBar \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmenubar.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmenu.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qaction.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qactiongroup.h \
   asdKeypad_cpp_autogen/UVLADIE3JM/moc_MockSerialCommunication.cpp \
   ../src/MockSerialCommunication.h \
   asdKeypad_cpp_autogen/UVLADIE3JM/moc_SerialCommunication.cpp \
@@ -1377,6 +1382,11 @@ CMakeFiles/asdKeypad_cpp.dir/src/MainWindow.cpp.o: ../src/MainWindow.cpp \
   ../src/AutoKeypress.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QVector \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qvector.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMenuBar \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmenubar.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmenu.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qaction.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qactiongroup.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QDebug \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qdebug.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h \
@@ -1390,11 +1400,6 @@ CMakeFiles/asdKeypad_cpp.dir/src/MainWindow.cpp.o: ../src/MainWindow.cpp \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHBoxLayout \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QGridLayout \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qgridlayout.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMenuBar \
-  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmenubar.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmenu.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qaction.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qactiongroup.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMessageBox \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmessagebox.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qdialog.h \
@@ -2416,7 +2421,12 @@ CMakeFiles/asdKeypad_cpp.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qbasictimer.h \
   ../src/AutoKeypress.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QVector \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/qvector.h
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qvector.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMenuBar \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmenubar.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmenu.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qaction.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qactiongroup.h
 
 
 ../src/main.cpp:
@@ -2441,10 +2451,6 @@ CMakeFiles/asdKeypad_cpp.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMessageBox:
 
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qactiongroup.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qaction.h:
-
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHBoxLayout:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qgridlayout.h:
@@ -2462,6 +2468,10 @@ CMakeFiles/asdKeypad_cpp.dir/src/main.cpp.o: ../src/main.cpp \
 ../src/AutoKeypress.cpp:
 
 asdKeypad_cpp_autogen/UVLADIE3JM/moc_SerialCommunication.cpp:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qactiongroup.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qaction.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qset.h:
 

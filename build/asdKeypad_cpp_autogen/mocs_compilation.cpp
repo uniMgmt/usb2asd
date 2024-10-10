@@ -4,3 +4,4 @@
 #include "UVLADIE3JM/moc_MainWindow.cpp"
 #include "UVLADIE3JM/moc_MockSerialCommunication.cpp"
 #include "UVLADIE3JM/moc_SerialCommunication.cpp"
+#include "UVLADIE3JM/moc_SetPriceDialog.cpp"

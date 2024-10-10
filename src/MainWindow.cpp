@@ -8,6 +8,7 @@
 #include <QApplication>
 #include "AutoKeypress.h"
 #include "Colors.h"
+#include "SetPriceDialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -392,10 +393,20 @@ void MainWindow::onClearVMCErrorClicked()
 
 void MainWindow::onSetVMCPricesClicked()
 {
-    logAction("Set VMC Prices clicked");
-    // Implement the set VMC prices functionality here
-    // For now, we'll just show a message box
-    QMessageBox::information(this, "Set VMC Prices", "This feature is not yet implemented.");
+    showSetPriceDialog();
+}
+
+void MainWindow::showSetPriceDialog()
+{
+    SetPriceDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        int price = dialog.getPrice();
+        if (m_keypressCommands->sendSetPriceCommand(price)) {
+            logAction(QString("Price set to $%1.%2").arg(price / 100).arg(price % 100, 2, 10, QChar('0')));
+        } else {
+            errorLog("Failed to set price");
+        }
+    }
 }
 
 void MainWindow::onAutoKeypressClicked()

@@ -25,6 +25,7 @@ public slots:
     void sendKeypress0();
     void sendKeypressStar();
     void sendKeypressHash();
+    bool sendSetPriceCommand(int price);
 
 private:
     SerialCommunication *m_serialComm;

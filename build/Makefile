@@ -286,6 +286,30 @@ src/SerialCommunication.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/asdKeypad_cpp.dir/build.make CMakeFiles/asdKeypad_cpp.dir/src/SerialCommunication.cpp.s
 .PHONY : src/SerialCommunication.cpp.s
 
+src/SetPriceDialog.o: src/SetPriceDialog.cpp.o
+.PHONY : src/SetPriceDialog.o
+
+# target to build an object file
+src/SetPriceDialog.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/asdKeypad_cpp.dir/build.make CMakeFiles/asdKeypad_cpp.dir/src/SetPriceDialog.cpp.o
+.PHONY : src/SetPriceDialog.cpp.o
+
+src/SetPriceDialog.i: src/SetPriceDialog.cpp.i
+.PHONY : src/SetPriceDialog.i
+
+# target to preprocess a source file
+src/SetPriceDialog.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/asdKeypad_cpp.dir/build.make CMakeFiles/asdKeypad_cpp.dir/src/SetPriceDialog.cpp.i
+.PHONY : src/SetPriceDialog.cpp.i
+
+src/SetPriceDialog.s: src/SetPriceDialog.cpp.s
+.PHONY : src/SetPriceDialog.s
+
+# target to generate assembly for a file
+src/SetPriceDialog.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/asdKeypad_cpp.dir/build.make CMakeFiles/asdKeypad_cpp.dir/src/SetPriceDialog.cpp.s
+.PHONY : src/SetPriceDialog.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -338,6 +362,9 @@ help:
 	@echo "... src/SerialCommunication.o"
 	@echo "... src/SerialCommunication.i"
 	@echo "... src/SerialCommunication.s"
+	@echo "... src/SetPriceDialog.o"
+	@echo "... src/SetPriceDialog.i"
+	@echo "... src/SetPriceDialog.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

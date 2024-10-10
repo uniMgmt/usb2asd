@@ -14,6 +14,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/asdKeypad_cpp.dir/src/MockSerialCommunication.cpp.o.d"
   "CMakeFiles/asdKeypad_cpp.dir/src/SerialCommunication.cpp.o"
   "CMakeFiles/asdKeypad_cpp.dir/src/SerialCommunication.cpp.o.d"
+  "CMakeFiles/asdKeypad_cpp.dir/src/SetPriceDialog.cpp.o"
+  "CMakeFiles/asdKeypad_cpp.dir/src/SetPriceDialog.cpp.o.d"
   "CMakeFiles/asdKeypad_cpp.dir/src/main.cpp.o"
   "CMakeFiles/asdKeypad_cpp.dir/src/main.cpp.o.d"
   "asdKeypad_cpp"
