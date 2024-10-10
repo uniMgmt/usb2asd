@@ -37,6 +37,8 @@ asdKeypad_cpp/
 │   ├── MockSerialCommunication.h
 │   ├── SerialCommunication.cpp
 │   ├── SerialCommunication.h
+│   ├── SetPriceDialog.cpp
+│   ├── SetPriceDialog.h
 │   └── main.cpp
 ├── CMakeLists.txt
 └── README.md
@@ -61,15 +63,16 @@ asdKeypad_cpp/
 	•	*Keypress command functions ported (1-9, 0, , #)
 	•	Logging functionality for actions and errors
 	•	Basic menu with options for clearing logs and setting the default port
+	•	Price setting functionality, allowing users to set prices between 0 and 999 cents
+	•	Mock serial communication for testing without hardware
 
 ## Next Steps and TODOs
 
 	1.	Improve Serial Communication Error Handling: Enhance the user feedback when errors occur during serial communication, such as failures to connect to the port or send data.
 	2.	About Dialog: Create an About dialog, replicating the functionality of the original VB.NET program, which provides information about the application.
-	3.	Price Setting Functionality: Port the price-setting feature from the VB.NET version, where specific sequences of keypresses are sent to configure the vending machine prices.
-	4.	Visual Indicator for Serial Connection: Implement a visual indicator in the UI to show the status of the serial connection (connected/disconnected).
-	5.	Test with Actual Hardware: Once all features are implemented, test the program with actual hardware (FTDI chipset and VMC) to ensure correct functionality.
-	6.	Finalize Documentation: Once all features are complete and tested, update this README with detailed usage instructions and any additional setup steps required.
+	3.	Visual Indicator for Serial Connection: Implement a visual indicator in the UI to show the status of the serial connection (connected/disconnected).
+	4.	Test with Actual Hardware: Once all features are implemented, test the program with actual hardware (FTDI chipset and VMC) to ensure correct functionality.
+	5.	Finalize Documentation: Once all features are complete and tested, update this README with detailed usage instructions and any additional setup steps required.
 
 ## Usage
 
