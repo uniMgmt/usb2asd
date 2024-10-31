@@ -23,6 +23,9 @@ jobs:
 
     - name: Configure
       run: |
+        if (Test-Path build) {
+          Remove-Item -Recurse -Force build
+        }
         mkdir build
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release
@@ -34,13 +37,16 @@ jobs:
 
     - name: Deploy
       run: |
+        if (Test-Path deploy) {
+          Remove-Item -Recurse -Force deploy
+        }
         mkdir deploy
         copy build\Release\asdKeypad_cpp.exe deploy\
         windeployqt deploy\asdKeypad_cpp.exe
 
     - name: Create ZIP
       run: |
-        Compress-Archive -Path deploy\* -DestinationPath asdKeypad_windows_x64.zip
+        Compress-Archive -Path deploy\* -DestinationPath asdKeypad_windows_x64.zip -Force
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
