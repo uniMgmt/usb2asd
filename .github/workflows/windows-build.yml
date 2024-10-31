@@ -44,6 +44,8 @@ jobs:
         mkdir deploy
         copy build\Release\asdKeypad_cpp.exe deploy\
         windeployqt --no-translations deploy\asdKeypad_cpp.exe
+        # Copy Visual C++ Runtime files
+        copy "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Redist\MSVC\14.29.30133\x64\Microsoft.VC142.CRT\*" deploy\
 
     - name: Create ZIP
       run: |
