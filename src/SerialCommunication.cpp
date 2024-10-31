@@ -113,13 +113,19 @@ QStringList SerialCommunication::getAvailablePorts()
     const auto serialPortInfos = QSerialPortInfo::availablePorts();
     
     for (const QSerialPortInfo &portInfo : serialPortInfos) {
-        QString portDescription = QString("%1 - %2 %3")
-            .arg(portInfo.portName())
-            .arg(portInfo.manufacturer())
-            .arg(portInfo.description());
+        // Store just the essential info in a cleaner format
+        QString portDescription;
+        if (portInfo.manufacturer().isEmpty() && portInfo.description().isEmpty()) {
+            portDescription = portInfo.portName();
+        } else {
+            portDescription = QString("%1 (%2)")
+                .arg(portInfo.portName())
+                .arg(portInfo.description());
+        }
         
         ports << portDescription;
         
+        // Keep debug info for troubleshooting
         qDebug() << "Found port:" << portInfo.portName();
         qDebug() << "  Manufacturer:" << portInfo.manufacturer();
         qDebug() << "  Description:" << portInfo.description();
@@ -128,6 +134,56 @@ QStringList SerialCommunication::getAvailablePorts()
     }
     
     return ports;
+}
+
+bool SerialCommunication::openPort(const QString &portName, const SerialConfig &config)
+{
+    if (m_serialPort->isOpen()) {
+        closePort();
+    }
+
+    // Extract just the COM port name from the description
+    QString actualPortName = portName.split(" ").first();
+    m_serialPort->setPortName(actualPortName);
+
+    // Configure port settings
+    m_serialPort->setBaudRate(config.baudRate);
+    m_serialPort->setDataBits(config.dataBits);
+    m_serialPort->setParity(config.parity);
+    m_serialPort->setStopBits(config.stopBits);
+    m_serialPort->setFlowControl(config.flowControl);
+
+    // Debug output for troubleshooting
+    qDebug() << "Attempting to open port:" << actualPortName;
+    qDebug() << "Port settings:"
+             << "Baud:" << m_serialPort->baudRate()
+             << "Data:" << m_serialPort->dataBits()
+             << "Parity:" << m_serialPort->parity()
+             << "Stop:" << m_serialPort->stopBits()
+             << "Flow:" << m_serialPort->flowControl();
+
+    // Try to open the port
+    if (!m_serialPort->open(QIODevice::ReadWrite)) {
+        QString errorDetails = QString("Failed to open port %1: %2 (Error: %3)")
+            .arg(actualPortName)
+            .arg(m_serialPort->errorString())
+            .arg(m_serialPort->error());
+        logError(errorDetails);
+        emit portStatusChanged(false);
+        return false;
+    }
+
+    // Clear any existing data
+    m_serialPort->clear();
+    m_serialPort->flush();
+
+    qDebug() << QDateTime::currentDateTime().toString()
+             << "- Opened port:" << actualPortName
+             << "at" << config.baudRate << "baud";
+
+    emit portStatusChanged(true);
+    m_watchdogTimer.start();
+    return true;
 }
 
 QString SerialCommunication::getDefaultPort()

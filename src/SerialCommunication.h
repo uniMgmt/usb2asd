@@ -12,11 +12,20 @@ class SerialCommunication : public QObject
 
 public:
     struct SerialConfig {
-        QSerialPort::BaudRate baudRate = QSerialPort::Baud9600;
-        QSerialPort::DataBits dataBits = QSerialPort::Data8;
-        QSerialPort::Parity parity = QSerialPort::NoParity;
-        QSerialPort::StopBits stopBits = QSerialPort::OneStop;
-        QSerialPort::FlowControl flowControl = QSerialPort::NoFlowControl;
+        SerialConfig() {
+            // Default configuration that works with most hardware
+            baudRate = QSerialPort::Baud9600;
+            dataBits = QSerialPort::Data8;
+            parity = QSerialPort::NoParity;
+            stopBits = QSerialPort::OneStop;
+            flowControl = QSerialPort::NoFlowControl;
+        }
+
+        QSerialPort::BaudRate baudRate;
+        QSerialPort::DataBits dataBits;
+        QSerialPort::Parity parity;
+        QSerialPort::StopBits stopBits;
+        QSerialPort::FlowControl flowControl;
     };
 
     explicit SerialCommunication(QObject *parent = nullptr);
