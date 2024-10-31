@@ -11,7 +11,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
@@ -43,7 +43,7 @@ jobs:
         Compress-Archive -Path deploy\* -DestinationPath asdKeypad_windows_x64.zip
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: asdKeypad_windows_x64
         path: asdKeypad_windows_x64.zip
