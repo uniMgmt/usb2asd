@@ -12,7 +12,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      m_useMockSerial(true), // Set this to false to use real serial communication
+      m_useMockSerial(false), // Set this to false to use real serial communication
       m_serialComm(nullptr),
       m_mockSerialComm(nullptr),
       m_keypressCommands(nullptr),

@@ -2,66 +2,131 @@
 #include <QSerialPortInfo>
 #include <QSettings>
 #include <QDebug>
+#include <QDateTime>
 
 SerialCommunication::SerialCommunication(QObject *parent)
-    : QObject(parent), m_serialPort(new QSerialPort(this))
+    : QObject(parent)
+    , m_serialPort(new QSerialPort(this))
 {
     m_defaultPort = getDefaultPort();
+    
     connect(m_serialPort, &QSerialPort::readyRead, this, &SerialCommunication::handleReadyRead);
+    connect(m_serialPort, &QSerialPort::errorOccurred, this, &SerialCommunication::handleError);
+    
+    setupWatchdog();
 }
 
 SerialCommunication::~SerialCommunication()
 {
     closePort();
+    delete m_serialPort;
 }
 
-bool SerialCommunication::openPort(const QString &portName)
+void SerialCommunication::setupWatchdog()
 {
-    closePort();  // Close any open port first
+    m_watchdogTimer.setInterval(WATCHDOG_TIMEOUT_MS);
+    connect(&m_watchdogTimer, &QTimer::timeout, [this]() {
+        if (m_serialPort->isOpen()) {
+            // Send a ping or check connection status
+            if (!sendCommand(QByteArray::fromHex("00"))) {
+                qDebug() << "Watchdog: Connection check failed";
+                closePort();
+                emit error("Connection lost - watchdog timeout");
+            }
+        }
+    });
+}
+
+bool SerialCommunication::openPort(const QString &portName, const SerialConfig &config)
+{
+    if (m_serialPort->isOpen()) {
+        closePort();
+    }
 
     m_serialPort->setPortName(portName);
-    m_serialPort->setBaudRate(QSerialPort::Baud9600);
-    m_serialPort->setDataBits(QSerialPort::Data8);
-    m_serialPort->setParity(QSerialPort::NoParity);
-    m_serialPort->setStopBits(QSerialPort::OneStop);
-    m_serialPort->setFlowControl(QSerialPort::NoFlowControl);
+    m_serialPort->setBaudRate(config.baudRate);
+    m_serialPort->setDataBits(config.dataBits);
+    m_serialPort->setParity(config.parity);
+    m_serialPort->setStopBits(config.stopBits);
+    m_serialPort->setFlowControl(config.flowControl);
 
-    if (m_serialPort->open(QIODevice::ReadWrite)) {
-        qDebug() << "Serial port opened successfully";
-        emit portStatusChanged(true);
-        return true;
-    } else {
-        qDebug() << "Failed to open serial port:" << m_serialPort->errorString();
+    if (!m_serialPort->open(QIODevice::ReadWrite)) {
+        logError(QString("Failed to open port %1: %2").arg(portName, m_serialPort->errorString()));
         emit portStatusChanged(false);
         return false;
     }
+
+    // Clear any existing data
+    m_serialPort->clear();
+    m_serialPort->flush();
+
+    qDebug() << QDateTime::currentDateTime().toString()
+             << "- Opened port:" << portName
+             << "at" << config.baudRate << "baud";
+
+    emit portStatusChanged(true);
+    m_watchdogTimer.start();
+    return true;
 }
 
 void SerialCommunication::closePort()
 {
+    m_watchdogTimer.stop();
+    
     if (m_serialPort->isOpen()) {
+        m_serialPort->clear();
+        m_serialPort->flush();
         m_serialPort->close();
-        qDebug() << "Serial port closed";
+        qDebug() << QDateTime::currentDateTime().toString()
+                 << "- Closed port:" << m_serialPort->portName();
         emit portStatusChanged(false);
     }
 }
 
 bool SerialCommunication::sendCommand(const QByteArray &command)
 {
-    if (m_serialPort->isOpen()) {
-        qint64 bytesWritten = m_serialPort->write(command);
-        return bytesWritten == command.size();
+    if (!m_serialPort->isOpen()) {
+        logError("Cannot send command - port not open");
+        return false;
     }
-    return false;
+
+    qint64 bytesWritten = m_serialPort->write(command);
+    if (bytesWritten != command.size()) {
+        logError(QString("Failed to write all data - wrote %1 of %2 bytes")
+                .arg(bytesWritten).arg(command.size()));
+        return false;
+    }
+
+    if (!m_serialPort->waitForBytesWritten(SERIAL_TIMEOUT_MS)) {
+        logError("Write timeout");
+        return false;
+    }
+
+    qDebug() << QDateTime::currentDateTime().toString()
+             << "- Sent command:" << command.toHex();
+    return true;
 }
 
 QStringList SerialCommunication::getAvailablePorts()
 {
     QStringList ports;
     const auto serialPortInfos = QSerialPortInfo::availablePorts();
+    
     for (const QSerialPortInfo &portInfo : serialPortInfos) {
-        ports << portInfo.portName();
+        QString portDescription = QString("%1 - %2 %3")
+            .arg(portInfo.portName())
+            .arg(portInfo.manufacturer())
+            .arg(portInfo.description());
+        
+        ports << portDescription;
+        
+        qDebug() << "Found port:" << portInfo.portName();
+        qDebug() << "  Manufacturer:" << portInfo.manufacturer();
+        qDebug() << "  Description:" << portInfo.description();
+        qDebug() << "  Serial Number:" << portInfo.serialNumber();
+        qDebug() << "  System Location:" << portInfo.systemLocation();
     }
+    
     return ports;
 }
 
@@ -83,8 +148,43 @@ bool SerialCommunication::isPortOpen() const
     return m_serialPort->isOpen();
 }
 
+QString SerialCommunication::getCurrentPortName() const
+{
+    return m_serialPort->portName();
+}
+
 void SerialCommunication::handleReadyRead()
 {
     QByteArray data = m_serialPort->readAll();
+    
+    qDebug() << QDateTime::currentDateTime().toString()
+             << "- Received data (hex):" << data.toHex()
+             << "ascii:" << data;
+    
     emit dataReceived(data);
+}
+
+void SerialCommunication::handleError(QSerialPort::SerialPortError error)
+{
+    if (error == QSerialPort::NoError) {
+        return;
+    }
+
+    QString errorString = QString("Serial port error: %1 - %2")
+                         .arg(error)
+                         .arg(m_serialPort->errorString());
+    
+    logError(errorString);
+    
+    if (error != QSerialPort::NotOpenError) {
+        closePort();
+    }
+}
+
+void SerialCommunication::logError(const QString &error)
+{
+    m_lastError = error;
+    qDebug() << QDateTime::currentDateTime().toString()
+             << "- ERROR:" << error;
+    emit this->error(error);
 }
