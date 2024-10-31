@@ -43,7 +43,7 @@ jobs:
         }
         mkdir deploy
         copy build\Release\asdKeypad_cpp.exe deploy\
-        windeployqt deploy\asdKeypad_cpp.exe
+        windeployqt --no-translations deploy\asdKeypad_cpp.exe
 
     - name: Create ZIP
       run: |
