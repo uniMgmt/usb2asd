@@ -1,0 +1,49 @@
+name: Windows Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.5.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2019_64'
+
+    - name: Configure
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config Release
+
+    - name: Deploy
+      run: |
+        mkdir deploy
+        copy build\Release\asdKeypad_cpp.exe deploy\
+        windeployqt deploy\asdKeypad_cpp.exe
+
+    - name: Create ZIP
+      run: |
+        Compress-Archive -Path deploy\* -DestinationPath asdKeypad_windows_x64.zip
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: asdKeypad_windows_x64
+        path: asdKeypad_windows_x64.zip
