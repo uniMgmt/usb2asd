@@ -8,8 +8,15 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(QT_MINIMUM_VERSION "5.15.0")
-find_package(Qt5 ${QT_MINIMUM_VERSION} COMPONENTS Core Gui Widgets SerialPort REQUIRED)
+# Try Qt6 first, fall back to Qt5 if Qt6 is not available
+find_package(Qt6 COMPONENTS Core Gui Widgets SerialPort QUIET)
+if (Qt6_FOUND)
+    set(QT_VERSION_MAJOR 6)
+else()
+    set(QT_MINIMUM_VERSION "5.15.0")
+    find_package(Qt5 ${QT_MINIMUM_VERSION} COMPONENTS Core Gui Widgets SerialPort REQUIRED)
+    set(QT_VERSION_MAJOR 5)
+endif()
 
 add_executable(asdKeypad_cpp
     src/main.cpp
@@ -23,8 +30,8 @@ add_executable(asdKeypad_cpp
 )
 
 target_link_libraries(asdKeypad_cpp
-    Qt5::Core
-    Qt5::Gui
-    Qt5::Widgets
-    Qt5::SerialPort
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::SerialPort
 )
