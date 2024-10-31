@@ -37,38 +37,6 @@ void SerialCommunication::setupWatchdog()
     });
 }
 
-bool SerialCommunication::openPort(const QString &portName, const SerialConfig &config)
-{
-    if (m_serialPort->isOpen()) {
-        closePort();
-    }
-
-    m_serialPort->setPortName(portName);
-    m_serialPort->setBaudRate(config.baudRate);
-    m_serialPort->setDataBits(config.dataBits);
-    m_serialPort->setParity(config.parity);
-    m_serialPort->setStopBits(config.stopBits);
-    m_serialPort->setFlowControl(config.flowControl);
-
-    if (!m_serialPort->open(QIODevice::ReadWrite)) {
-        logError(QString("Failed to open port %1: %2").arg(portName, m_serialPort->errorString()));
-        emit portStatusChanged(false);
-        return false;
-    }
-
-    // Clear any existing data
-    m_serialPort->clear();
-    m_serialPort->flush();
-
-    qDebug() << QDateTime::currentDateTime().toString()
-             << "- Opened port:" << portName
-             << "at" << config.baudRate << "baud";
-
-    emit portStatusChanged(true);
-    m_watchdogTimer.start();
-    return true;
-}
-
 void SerialCommunication::closePort()
 {
     m_watchdogTimer.stop();
