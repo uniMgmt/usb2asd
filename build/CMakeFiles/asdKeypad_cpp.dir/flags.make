@@ -6,5 +6,5 @@ CXX_DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_DEBUG -DQT_SERIALPORT_LIB -DQT_
 
 CXX_INCLUDES = -I/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtSerialPort
 
-CXX_FLAGS = -fPIC -std=gnu++17
+CXX_FLAGS = -O3 -DNDEBUG -fPIC -std=gnu++17
 
