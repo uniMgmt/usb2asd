@@ -81,23 +81,22 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
         return false;
     }
 
-    m_lastCommand = command;  // Store the command type
-    qDebug() << QDateTime::currentDateTime().toString() << "- Sending command:" << command.toHex();
+    // Store the command type
+    m_lastCommand = command;
 
-    // Write command
+    // If this is a keepalive command, emit through keepaliveMessage
+    if (command == "00") {
+        emit keepaliveMessage(QString("%1 - Sending command: %2")
+            .arg(QDateTime::currentDateTime().toString())
+            .arg(QString(command.toHex())));
+    } else {
+        emit normalMessage(QString("%1 - Sending command: %2")
+            .arg(QDateTime::currentDateTime().toString())
+            .arg(QString(command.toHex())));
+    }
+
     qint64 bytesWritten = m_serialPort->write(command);
-    if (bytesWritten != command.size()) {
-        logError(QString("Failed to write all data - wrote %1 of %2 bytes")
-                .arg(bytesWritten).arg(command.size()));
-        return false;
-    }
-
-    // Wait for command to be written
-    if (!m_serialPort->waitForBytesWritten(COMMAND_TIMEOUT_MS)) {
-        qDebug() << "Write timeout - but continuing";
-    }
-
-    return true;  // Return true as long as we wrote the data
+    return bytesWritten == command.size();
 }
 
 bool SerialCommunication::waitForResponse(int timeout)
@@ -258,8 +257,11 @@ void SerialCommunication::handleReadyRead()
             .arg(QString(data.toHex()))
             .arg(QString(data));
 
-        // Determine if this is a keepalive response
-        if (m_lastCommand == "00") {
+        // Check if this is a keepalive response (0B0FFA)
+        bool isKeepaliveResponse = data.contains("0B0FFA") || 
+                                 data.toHex().contains("304230464641");
+
+        if (isKeepaliveResponse) {
             emit keepaliveMessage(message);
         } else {
             emit normalMessage(message);
