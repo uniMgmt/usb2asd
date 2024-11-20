@@ -69,26 +69,40 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
     m_serialPort->clear();
     m_responseBuffer.clear();
 
-    // Write command
-    qint64 bytesWritten = m_serialPort->write(command);
+    // Write command with error checking
+    qint64 bytesWritten = 0;
+    int retries = 3;  // Add retries for write operation
+    
+    while (retries > 0 && bytesWritten != command.size()) {
+        bytesWritten = m_serialPort->write(command);
+        if (bytesWritten == -1) {
+            logError("Write error: " + m_serialPort->errorString());
+            retries--;
+            QThread::msleep(10);  // Brief pause before retry
+            continue;
+        }
+        break;
+    }
+
     if (bytesWritten != command.size()) {
         logError(QString("Failed to write all data - wrote %1 of %2 bytes")
                 .arg(bytesWritten).arg(command.size()));
         return false;
     }
 
-    // Wait for command to be written with a longer timeout
+    // Wait for command to be written
     if (!m_serialPort->waitForBytesWritten(COMMAND_TIMEOUT_MS)) {
         logError("Write timeout");
         return false;
     }
 
-    // Give the device a moment to process
-    QThread::msleep(50);  // Add a small delay
+    // Brief pause to allow device processing
+    QThread::msleep(20);
 
-    // Wait for response with more detailed logging
-    if (!waitForResponse()) {
-        logError("Response timeout");
+    // Wait for response with safer handling
+    bool responseReceived = waitForResponse();
+    if (!responseReceived) {
+        logError("No response received");
         return false;
     }
 
@@ -98,12 +112,24 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
 
 bool SerialCommunication::waitForResponse(int timeout)
 {
+    if (!m_serialPort->isOpen()) {
+        logError("Cannot wait for response - port not open");
+        return false;
+    }
+
     QElapsedTimer timer;
     timer.start();
     
     qDebug() << "Waiting for response, timeout:" << timeout << "ms";
 
     while (timer.elapsed() < timeout) {
+        // Check if port is still valid
+        if (!m_serialPort->isOpen() || !m_serialPort->isReadable()) {
+            logError("Port became inaccessible while waiting for response");
+            return false;
+        }
+
+        // Wait for data with shorter timeout
         if (m_serialPort->waitForReadyRead(10)) {
             QByteArray newData = m_serialPort->readAll();
             if (!newData.isEmpty()) {
@@ -114,8 +140,8 @@ bool SerialCommunication::waitForResponse(int timeout)
             }
         }
         
-        // Reduce the number of processEvents calls
-        if (timer.elapsed() % 20 == 0) {  // Only process every 20ms
+        // Process events less frequently
+        if (timer.elapsed() % 50 == 0) {  // Reduced frequency of event processing
             QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         }
     }
@@ -228,14 +254,20 @@ QString SerialCommunication::getCurrentPortName() const
 
 void SerialCommunication::handleReadyRead()
 {
+    if (!m_serialPort->isOpen()) {
+        return;  // Safety check
+    }
+    
     QByteArray data = m_serialPort->readAll();
-    m_responseBuffer.append(data);
-    
-    qDebug() << QDateTime::currentDateTime().toString()
-             << "- Received data (hex):" << data.toHex()
-             << "ascii:" << data;
-    
-    emit dataReceived(data);
+    if (!data.isEmpty()) {
+        m_responseBuffer.append(data);
+        
+        qDebug() << QDateTime::currentDateTime().toString()
+                 << "- Received data (hex):" << data.toHex()
+                 << "ascii:" << data;
+        
+        emit dataReceived(data);
+    }
 }
 
 void SerialCommunication::handleError(QSerialPort::SerialPortError error)
