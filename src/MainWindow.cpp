@@ -191,6 +191,12 @@ void MainWindow::setupMenuBar()
     toolsMenu->addAction(tr("Clear VMC &Error"), this, &MainWindow::onClearVMCErrorClicked);
     toolsMenu->addAction(tr("Set VMC &Prices"), this, &MainWindow::onSetVMCPricesClicked);
 
+    // Add toggle action to Tools menu
+    QAction* toggleKeepaliveAction = toolsMenu->addAction(tr("Show &Keepalive Logs"));
+    toggleKeepaliveAction->setCheckable(true);
+    toggleKeepaliveAction->setChecked(false);  // Default to hidden
+    connect(toggleKeepaliveAction, &QAction::toggled, this, &MainWindow::onToggleKeepaliveLogs);
+
     // Add actions to Help menu
     helpMenu->addAction(tr("&About"), this, &MainWindow::onAboutClicked);
 
@@ -452,4 +458,29 @@ void MainWindow::connectSignalsAndSlots()
     } else {
         connect(m_serialComm, &SerialCommunication::portStatusChanged, this, &MainWindow::onPortStatusChanged);
     }
+
+    // Add these new connections
+    if (!m_useMockSerial) {
+        connect(m_serialComm, &SerialCommunication::keepaliveMessage, 
+                this, &MainWindow::onKeepaliveMessage);
+        connect(m_serialComm, &SerialCommunication::normalMessage, 
+                this, &MainWindow::onNormalMessage);
+    }
+}
+
+void MainWindow::onToggleKeepaliveLogs(bool show)
+{
+    m_showKeepaliveLogs = show;
+}
+
+void MainWindow::onKeepaliveMessage(const QString &message)
+{
+    if (m_showKeepaliveLogs) {
+        logAction(message);
+    }
+}
+
+void MainWindow::onNormalMessage(const QString &message)
+{
+    logAction(message);  // Always show normal messages
 }

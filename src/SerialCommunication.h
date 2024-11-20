@@ -45,6 +45,8 @@ signals:
     void portStatusChanged(bool isOpen);
     void dataReceived(const QByteArray &data);
     void error(const QString &errorMessage);
+    void keepaliveMessage(const QString &message);
+    void normalMessage(const QString &message);
 
 private slots:
     void handleReadyRead();
@@ -71,6 +73,8 @@ private:
 #ifdef QT_DEBUG
     bool testResponseTimes();
 #endif
+
+    QByteArray m_lastCommand;  // Add this to track command type
 };
 
 #endif // SERIALCOMMUNICATION_H

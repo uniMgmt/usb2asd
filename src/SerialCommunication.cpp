@@ -54,7 +54,8 @@ void SerialCommunication::sendKeepalive()
     if (m_serialPort->isOpen()) {
         QByteArray keepalive("00");
         m_serialPort->write(keepalive);
-        qDebug() << QDateTime::currentDateTime().toString() << "- Sent keepalive";
+        emit keepaliveMessage(QString("%1 - Sent keepalive")
+            .arg(QDateTime::currentDateTime().toString()));
     }
 }
 
@@ -80,6 +81,7 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
         return false;
     }
 
+    m_lastCommand = command;  // Store the command type
     qDebug() << QDateTime::currentDateTime().toString() << "- Sending command:" << command.toHex();
 
     // Write command
@@ -244,16 +246,24 @@ QString SerialCommunication::getCurrentPortName() const
 void SerialCommunication::handleReadyRead()
 {
     if (!m_serialPort->isOpen()) {
-        return;  // Safety check
+        return;
     }
     
     QByteArray data = m_serialPort->readAll();
     if (!data.isEmpty()) {
         m_responseBuffer.append(data);
         
-        qDebug() << QDateTime::currentDateTime().toString()
-                 << "- Received data (hex):" << data.toHex()
-                 << "ascii:" << data;
+        QString message = QString("%1 - Received data (hex): %2 ascii: %3")
+            .arg(QDateTime::currentDateTime().toString())
+            .arg(QString(data.toHex()))
+            .arg(QString(data));
+
+        // Determine if this is a keepalive response
+        if (m_lastCommand == "00") {
+            emit keepaliveMessage(message);
+        } else {
+            emit normalMessage(message);
+        }
         
         emit dataReceived(data);
     }

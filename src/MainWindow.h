@@ -65,6 +65,8 @@ private:
     QMenuBar *m_menuBar;
 
     void showSetPriceDialog();
+
+    bool m_showKeepaliveLogs;
 };
 
 #endif // MAINWINDOW_H
