@@ -4,6 +4,15 @@ project(asdKeypad_cpp)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Add optimization flags for Release builds
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    if(MSVC)
+        add_compile_options(/O2)  # Optimize for speed
+    else()
+        add_compile_options(-O3)  # Highest optimization for GCC/Clang
+    endif()
+endif()
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)

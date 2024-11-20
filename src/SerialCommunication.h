@@ -56,11 +56,20 @@ private:
     QString m_lastError;
     QTimer m_watchdogTimer;
     
-    static const int SERIAL_TIMEOUT_MS = 1000;
-    static const int WATCHDOG_TIMEOUT_MS = 5000;
+    // Timeout constants
+    static const int COMMAND_TIMEOUT_MS = 50;      // Time to wait for command to be written
+    static const int RESPONSE_TIMEOUT_MS = 100;    // Time to wait for response
+    static const int WATCHDOG_TIMEOUT_MS = 1000;   // Watchdog interval
+    
+    QByteArray m_responseBuffer;
+    bool waitForResponse(int timeout = RESPONSE_TIMEOUT_MS);
 
     void setupWatchdog();
     void logError(const QString &error);
+
+#ifdef QT_DEBUG
+    bool testResponseTimes();
+#endif
 };
 
 #endif // SERIALCOMMUNICATION_H

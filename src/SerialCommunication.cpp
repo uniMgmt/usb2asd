@@ -3,6 +3,11 @@
 #include <QSettings>
 #include <QDebug>
 #include <QDateTime>
+#include <QElapsedTimer>
+#include <QCoreApplication>
+#include <QThread>
+#include <numeric>
+#include <algorithm>
 
 SerialCommunication::SerialCommunication(QObject *parent)
     : QObject(parent)
@@ -58,6 +63,11 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
         return false;
     }
 
+    // Clear any existing data
+    m_serialPort->clear();
+    m_responseBuffer.clear();
+
+    // Write command
     qint64 bytesWritten = m_serialPort->write(command);
     if (bytesWritten != command.size()) {
         logError(QString("Failed to write all data - wrote %1 of %2 bytes")
@@ -65,14 +75,43 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
         return false;
     }
 
-    if (!m_serialPort->waitForBytesWritten(SERIAL_TIMEOUT_MS)) {
+    // Wait for command to be written
+    if (!m_serialPort->waitForBytesWritten(COMMAND_TIMEOUT_MS)) {
         logError("Write timeout");
         return false;
     }
 
+    // Wait for response
+    if (!waitForResponse()) {
+        logError("Response timeout");
+        return false;
+    }
+
     qDebug() << QDateTime::currentDateTime().toString()
-             << "- Sent command:" << command.toHex();
+             << "- Command completed. Sent:" << command.toHex()
+             << "Response:" << m_responseBuffer.toHex();
     return true;
+}
+
+bool SerialCommunication::waitForResponse(int timeout)
+{
+    QElapsedTimer timer;
+    timer.start();
+
+    while (timer.elapsed() < timeout) {
+        if (m_serialPort->waitForReadyRead(10)) {
+            QByteArray newData = m_serialPort->readAll();
+            if (!newData.isEmpty()) {
+                m_responseBuffer.append(newData);
+                qDebug() << "Response received in" << timer.elapsed() << "ms";
+                return true;
+            }
+        }
+        QCoreApplication::processEvents();
+    }
+
+    qDebug() << "Response timeout after" << timer.elapsed() << "ms";
+    return false;
 }
 
 QStringList SerialCommunication::getAvailablePorts()
@@ -180,6 +219,7 @@ QString SerialCommunication::getCurrentPortName() const
 void SerialCommunication::handleReadyRead()
 {
     QByteArray data = m_serialPort->readAll();
+    m_responseBuffer.append(data);
     
     qDebug() << QDateTime::currentDateTime().toString()
              << "- Received data (hex):" << data.toHex()
@@ -212,3 +252,43 @@ void SerialCommunication::logError(const QString &error)
              << "- ERROR:" << error;
     emit this->error(error);
 }
+
+#ifdef QT_DEBUG
+bool SerialCommunication::testResponseTimes()
+{
+    QElapsedTimer totalTimer;
+    totalTimer.start();
+    
+    const int TEST_ITERATIONS = 10;
+    int successCount = 0;
+    QVector<qint64> responseTimes;
+
+    for (int i = 0; i < TEST_ITERATIONS; i++) {
+        QElapsedTimer commandTimer;
+        commandTimer.start();
+        
+        // Send a simple command
+        if (sendCommand(QByteArray::fromHex("0B0003C8D6"))) {
+            responseTimes.append(commandTimer.elapsed());
+            successCount++;
+        }
+        
+        QThread::msleep(100); // Brief pause between tests
+    }
+
+    // Calculate statistics
+    if (!responseTimes.isEmpty()) {
+        qint64 avgTime = std::accumulate(responseTimes.begin(), responseTimes.end(), 0LL) / responseTimes.size();
+        qint64 maxTime = *std::max_element(responseTimes.begin(), responseTimes.end());
+        qint64 minTime = *std::min_element(responseTimes.begin(), responseTimes.end());
+        
+        qDebug() << "Response Time Statistics:";
+        qDebug() << "  Average:" << avgTime << "ms";
+        qDebug() << "  Maximum:" << maxTime << "ms";
+        qDebug() << "  Minimum:" << minTime << "ms";
+        qDebug() << "  Success Rate:" << (successCount * 100 / TEST_ITERATIONS) << "%";
+    }
+
+    return successCount > 0;
+}
+#endif
