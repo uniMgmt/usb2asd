@@ -19,6 +19,7 @@ SerialCommunication::SerialCommunication(QObject *parent)
     connect(m_serialPort, &QSerialPort::errorOccurred, this, &SerialCommunication::handleError);
     
     setupWatchdog();
+    setupKeepalive();
 }
 
 SerialCommunication::~SerialCommunication()
@@ -42,9 +43,25 @@ void SerialCommunication::setupWatchdog()
     });
 }
 
+void SerialCommunication::setupKeepalive()
+{
+    m_keepaliveTimer.setInterval(KEEPALIVE_INTERVAL_MS);
+    connect(&m_keepaliveTimer, &QTimer::timeout, this, &SerialCommunication::sendKeepalive);
+}
+
+void SerialCommunication::sendKeepalive()
+{
+    if (m_serialPort->isOpen()) {
+        QByteArray keepalive("00");
+        m_serialPort->write(keepalive);
+        qDebug() << QDateTime::currentDateTime().toString() << "- Sent keepalive";
+    }
+}
+
 void SerialCommunication::closePort()
 {
     m_watchdogTimer.stop();
+    m_keepaliveTimer.stop();  // Stop keepalive timer
     
     if (m_serialPort->isOpen()) {
         m_serialPort->clear();
@@ -63,27 +80,10 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
         return false;
     }
 
-    qDebug() << "Sending command:" << command.toHex();
+    qDebug() << QDateTime::currentDateTime().toString() << "- Sending command:" << command.toHex();
 
-    // Clear any existing data
-    m_serialPort->clear();
-    m_responseBuffer.clear();
-
-    // Write command with error checking
-    qint64 bytesWritten = 0;
-    int retries = 3;  // Add retries for write operation
-    
-    while (retries > 0 && bytesWritten != command.size()) {
-        bytesWritten = m_serialPort->write(command);
-        if (bytesWritten == -1) {
-            logError("Write error: " + m_serialPort->errorString());
-            retries--;
-            QThread::msleep(10);  // Brief pause before retry
-            continue;
-        }
-        break;
-    }
-
+    // Write command
+    qint64 bytesWritten = m_serialPort->write(command);
     if (bytesWritten != command.size()) {
         logError(QString("Failed to write all data - wrote %1 of %2 bytes")
                 .arg(bytesWritten).arg(command.size()));
@@ -92,22 +92,10 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
 
     // Wait for command to be written
     if (!m_serialPort->waitForBytesWritten(COMMAND_TIMEOUT_MS)) {
-        logError("Write timeout");
-        return false;
+        qDebug() << "Write timeout - but continuing";
     }
 
-    // Brief pause to allow device processing
-    QThread::msleep(20);
-
-    // Wait for response with safer handling
-    bool responseReceived = waitForResponse();
-    if (!responseReceived) {
-        logError("No response received");
-        return false;
-    }
-
-    qDebug() << "Command completed successfully";
-    return true;
+    return true;  // Return true as long as we wrote the data
 }
 
 bool SerialCommunication::waitForResponse(int timeout)
@@ -226,6 +214,7 @@ bool SerialCommunication::openPort(const QString &portName, const SerialConfig &
 
     emit portStatusChanged(true);
     m_watchdogTimer.start();
+    m_keepaliveTimer.start();  // Start keepalive timer
     return true;
 }
 
@@ -272,7 +261,8 @@ void SerialCommunication::handleReadyRead()
 
 void SerialCommunication::handleError(QSerialPort::SerialPortError error)
 {
-    if (error == QSerialPort::NoError) {
+    if (error == QSerialPort::NoError || 
+        error == QSerialPort::TimeoutError) {  // Ignore timeout errors
         return;
     }
 

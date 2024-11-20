@@ -55,17 +55,18 @@ private:
     QString m_defaultPort;
     QString m_lastError;
     QTimer m_watchdogTimer;
-    
-    // Timeout constants - increased for stability
+    QTimer m_keepaliveTimer;
     static const int COMMAND_TIMEOUT_MS = 100;     // Time to wait for command to be written
     static const int RESPONSE_TIMEOUT_MS = 250;    // Time to wait for response
     static const int WATCHDOG_TIMEOUT_MS = 1000;   // Watchdog interval
-    
+    static const int KEEPALIVE_INTERVAL_MS = 5000;  // 5 seconds
     QByteArray m_responseBuffer;
     bool waitForResponse(int timeout = RESPONSE_TIMEOUT_MS);
 
     void setupWatchdog();
     void logError(const QString &error);
+    void setupKeepalive();
+    void sendKeepalive();
 
 #ifdef QT_DEBUG
     bool testResponseTimes();
