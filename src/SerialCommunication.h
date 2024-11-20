@@ -56,9 +56,9 @@ private:
     QString m_lastError;
     QTimer m_watchdogTimer;
     
-    // Timeout constants
-    static const int COMMAND_TIMEOUT_MS = 50;      // Time to wait for command to be written
-    static const int RESPONSE_TIMEOUT_MS = 100;    // Time to wait for response
+    // Timeout constants - increased for stability
+    static const int COMMAND_TIMEOUT_MS = 100;     // Time to wait for command to be written
+    static const int RESPONSE_TIMEOUT_MS = 250;    // Time to wait for response
     static const int WATCHDOG_TIMEOUT_MS = 1000;   // Watchdog interval
     
     QByteArray m_responseBuffer;

@@ -32,11 +32,11 @@ void SerialCommunication::setupWatchdog()
     m_watchdogTimer.setInterval(WATCHDOG_TIMEOUT_MS);
     connect(&m_watchdogTimer, &QTimer::timeout, [this]() {
         if (m_serialPort->isOpen()) {
-            // Send a ping or check connection status
-            if (!sendCommand(QByteArray::fromHex("00"))) {
-                qDebug() << "Watchdog: Connection check failed";
+            // Simple status check instead of sending command
+            if (!m_serialPort->isWritable() || !m_serialPort->isReadable()) {
+                qDebug() << "Watchdog: Port no longer accessible";
                 closePort();
-                emit error("Connection lost - watchdog timeout");
+                emit error("Connection lost - port not accessible");
             }
         }
     });
@@ -63,6 +63,8 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
         return false;
     }
 
+    qDebug() << "Sending command:" << command.toHex();
+
     // Clear any existing data
     m_serialPort->clear();
     m_responseBuffer.clear();
@@ -75,21 +77,22 @@ bool SerialCommunication::sendCommand(const QByteArray &command)
         return false;
     }
 
-    // Wait for command to be written
+    // Wait for command to be written with a longer timeout
     if (!m_serialPort->waitForBytesWritten(COMMAND_TIMEOUT_MS)) {
         logError("Write timeout");
         return false;
     }
 
-    // Wait for response
+    // Give the device a moment to process
+    QThread::msleep(50);  // Add a small delay
+
+    // Wait for response with more detailed logging
     if (!waitForResponse()) {
         logError("Response timeout");
         return false;
     }
 
-    qDebug() << QDateTime::currentDateTime().toString()
-             << "- Command completed. Sent:" << command.toHex()
-             << "Response:" << m_responseBuffer.toHex();
+    qDebug() << "Command completed successfully";
     return true;
 }
 
@@ -97,17 +100,24 @@ bool SerialCommunication::waitForResponse(int timeout)
 {
     QElapsedTimer timer;
     timer.start();
+    
+    qDebug() << "Waiting for response, timeout:" << timeout << "ms";
 
     while (timer.elapsed() < timeout) {
         if (m_serialPort->waitForReadyRead(10)) {
             QByteArray newData = m_serialPort->readAll();
             if (!newData.isEmpty()) {
                 m_responseBuffer.append(newData);
-                qDebug() << "Response received in" << timer.elapsed() << "ms";
+                qDebug() << "Response received in" << timer.elapsed() 
+                         << "ms, data:" << newData.toHex();
                 return true;
             }
         }
-        QCoreApplication::processEvents();
+        
+        // Reduce the number of processEvents calls
+        if (timer.elapsed() % 20 == 0) {  // Only process every 20ms
+            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        }
     }
 
     qDebug() << "Response timeout after" << timer.elapsed() << "ms";

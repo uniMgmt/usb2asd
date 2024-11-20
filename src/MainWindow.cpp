@@ -303,28 +303,44 @@ void MainWindow::onEnterClicked()
 
 void MainWindow::onConnectClicked()
 {
-    if (m_useMockSerial) {
-        if (m_mockSerialComm->isPortOpen()) {
-            m_mockSerialComm->closePort();
-        } else {
-            QString portName = m_portComboBox->currentText();
-            if (m_mockSerialComm->openPort(portName)) {
-                logAction("Connected to mock port: " + portName);
+    try {
+        if (m_useMockSerial) {
+            if (m_mockSerialComm->isPortOpen()) {
+                m_mockSerialComm->closePort();
             } else {
-                errorLog("Failed to connect to mock port: " + portName);
+                QString portName = m_portComboBox->currentText();
+                if (m_mockSerialComm->openPort(portName)) {
+                    logAction("Connected to mock port: " + portName);
+                } else {
+                    errorLog("Failed to connect to mock port: " + portName);
+                }
+            }
+        } else {
+            if (m_serialComm->isPortOpen()) {
+                m_serialComm->closePort();
+            } else {
+                QString portName = m_portComboBox->currentText();
+                qDebug() << "Attempting to connect to port:" << portName;
+                
+                SerialCommunication::SerialConfig config;
+                // Explicitly set serial configuration
+                config.baudRate = QSerialPort::Baud9600;
+                config.dataBits = QSerialPort::Data8;
+                config.parity = QSerialPort::NoParity;
+                config.stopBits = QSerialPort::OneStop;
+                config.flowControl = QSerialPort::NoFlowControl;
+
+                if (m_serialComm->openPort(portName, config)) {
+                    logAction("Connected to port: " + portName);
+                } else {
+                    errorLog("Failed to connect to port: " + portName);
+                }
             }
         }
-    } else {
-        if (m_serialComm->isPortOpen()) {
-            m_serialComm->closePort();
-        } else {
-            QString portName = m_portComboBox->currentText();
-            if (m_serialComm->openPort(portName)) {
-                logAction("Connected to port: " + portName);
-            } else {
-                errorLog("Failed to connect to port: " + portName);
-            }
-        }
+    } catch (const std::exception& e) {
+        errorLog(QString("Exception during connect: %1").arg(e.what()));
+    } catch (...) {
+        errorLog("Unknown exception during connect");
     }
 }
 
