@@ -34,6 +34,9 @@ private slots:
     void onClearVMCErrorClicked();
     void onSetVMCPricesClicked();
     void onAutoKeypressClicked();
+    void onToggleKeepaliveLogs(bool show);
+    void onKeepaliveMessage(const QString &message);
+    void onNormalMessage(const QString &message);
 
 private:
     void setupUi();
