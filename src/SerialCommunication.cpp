@@ -207,13 +207,24 @@ bool SerialCommunication::openPort(const QString &portName, const SerialConfig &
 
         // Force close any existing connections to this port
         QString actualPortName = portName.split(" ").first();
+        bool portExists = false;
+        
         for (const auto& info : QSerialPortInfo::availablePorts()) {
-            if (info.portName() == actualPortName && info.isValid()) {
+            if (info.portName() == actualPortName) {
+                portExists = true;
                 QSerialPort tempPort(info);
                 if (tempPort.isOpen()) {
                     tempPort.close();
                 }
+                break;
             }
+        }
+
+        if (!portExists) {
+            QString error = QString("Port %1 not found").arg(actualPortName);
+            logError(error);
+            isOpening = false;
+            return false;
         }
 
         // Add a delay after closing
