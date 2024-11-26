@@ -27,6 +27,10 @@ else()
     set(QT_VERSION_MAJOR 5)
 endif()
 
+if(WIN32)
+    set(CMAKE_WIN32_EXECUTABLE TRUE)
+endif()
+
 add_executable(asdKeypad_cpp
     src/main.cpp
     src/MainWindow.cpp

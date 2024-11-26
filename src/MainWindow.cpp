@@ -540,15 +540,15 @@ void MainWindow::messageHandler(QtMsgType type, const QMessageLogContext &contex
         break;
     }
 
-    // Get the MainWindow instance
-    QWidgetList widgets = QApplication::topLevelWidgets();
-    for (QWidget *widget : widgets) {
-        if (MainWindow *mainWindow = qobject_cast<MainWindow*>(widget)) {
-            QMetaObject::invokeMethod(mainWindow, "appendToConsole", 
-                Qt::QueuedConnection, Q_ARG(QString, txt));
-            break;
+    // Use a safer way to post the message
+    QMetaObject::invokeMethod(qApp, [txt]() {
+        for (QWidget *widget : QApplication::topLevelWidgets()) {
+            if (MainWindow *mainWindow = qobject_cast<MainWindow*>(widget)) {
+                mainWindow->appendToConsole(txt);
+                break;
+            }
         }
-    }
+    }, Qt::QueuedConnection);
 }
 
 void MainWindow::appendToConsole(const QString &text)
