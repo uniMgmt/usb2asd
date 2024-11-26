@@ -174,18 +174,6 @@ void MainWindow::setupUi()
 
     m_portComboBox->setStyleSheet(comboBoxStyle);
 
-    // Style for log list
-    QString listWidgetStyle = QString(
-        "QListWidget {"
-        "    background-color: %1;"
-        "    color: %2;"
-        "    border: 2px solid %3;"
-        "    border-radius: 5px;"
-        "}"
-    ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name());
-
-    m_logList->setStyleSheet(listWidgetStyle);
-
     // Install event filter to capture qDebug output
     qInstallMessageHandler(MainWindow::messageHandler);
 }
@@ -374,7 +362,7 @@ void MainWindow::onPortStatusChanged(bool isOpen)
 
 void MainWindow::onClearLogClicked()
 {
-    m_logList->clear();
+    m_consoleOutput->clear();
     logAction("Log cleared");
 }
 
