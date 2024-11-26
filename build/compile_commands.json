@@ -1,0 +1,42 @@
+[
+{
+  "directory": "/home/hcampa/asdKeypad_cpp/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SERIALPORT_LIB -DQT_WIDGETS_LIB -I/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtSerialPort -g -fPIC -std=gnu++17 -o CMakeFiles/asdKeypad_cpp.dir/asdKeypad_cpp_autogen/mocs_compilation.cpp.o -c /home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/mocs_compilation.cpp",
+  "file": "/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/mocs_compilation.cpp"
+},
+{
+  "directory": "/home/hcampa/asdKeypad_cpp/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SERIALPORT_LIB -DQT_WIDGETS_LIB -I/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtSerialPort -g -fPIC -std=gnu++17 -o CMakeFiles/asdKeypad_cpp.dir/src/main.cpp.o -c /home/hcampa/asdKeypad_cpp/src/main.cpp",
+  "file": "/home/hcampa/asdKeypad_cpp/src/main.cpp"
+},
+{
+  "directory": "/home/hcampa/asdKeypad_cpp/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SERIALPORT_LIB -DQT_WIDGETS_LIB -I/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtSerialPort -g -fPIC -std=gnu++17 -o CMakeFiles/asdKeypad_cpp.dir/src/MainWindow.cpp.o -c /home/hcampa/asdKeypad_cpp/src/MainWindow.cpp",
+  "file": "/home/hcampa/asdKeypad_cpp/src/MainWindow.cpp"
+},
+{
+  "directory": "/home/hcampa/asdKeypad_cpp/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SERIALPORT_LIB -DQT_WIDGETS_LIB -I/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtSerialPort -g -fPIC -std=gnu++17 -o CMakeFiles/asdKeypad_cpp.dir/src/SerialCommunication.cpp.o -c /home/hcampa/asdKeypad_cpp/src/SerialCommunication.cpp",
+  "file": "/home/hcampa/asdKeypad_cpp/src/SerialCommunication.cpp"
+},
+{
+  "directory": "/home/hcampa/asdKeypad_cpp/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SERIALPORT_LIB -DQT_WIDGETS_LIB -I/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtSerialPort -g -fPIC -std=gnu++17 -o CMakeFiles/asdKeypad_cpp.dir/src/KeypressCommands.cpp.o -c /home/hcampa/asdKeypad_cpp/src/KeypressCommands.cpp",
+  "file": "/home/hcampa/asdKeypad_cpp/src/KeypressCommands.cpp"
+},
+{
+  "directory": "/home/hcampa/asdKeypad_cpp/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SERIALPORT_LIB -DQT_WIDGETS_LIB -I/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtSerialPort -g -fPIC -std=gnu++17 -o CMakeFiles/asdKeypad_cpp.dir/src/MockSerialCommunication.cpp.o -c /home/hcampa/asdKeypad_cpp/src/MockSerialCommunication.cpp",
+  "file": "/home/hcampa/asdKeypad_cpp/src/MockSerialCommunication.cpp"
+},
+{
+  "directory": "/home/hcampa/asdKeypad_cpp/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SERIALPORT_LIB -DQT_WIDGETS_LIB -I/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtSerialPort -g -fPIC -std=gnu++17 -o CMakeFiles/asdKeypad_cpp.dir/src/AutoKeypress.cpp.o -c /home/hcampa/asdKeypad_cpp/src/AutoKeypress.cpp",
+  "file": "/home/hcampa/asdKeypad_cpp/src/AutoKeypress.cpp"
+},
+{
+  "directory": "/home/hcampa/asdKeypad_cpp/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SERIALPORT_LIB -DQT_WIDGETS_LIB -I/home/hcampa/asdKeypad_cpp/build/asdKeypad_cpp_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtSerialPort -g -fPIC -std=gnu++17 -o CMakeFiles/asdKeypad_cpp.dir/src/SetPriceDialog.cpp.o -c /home/hcampa/asdKeypad_cpp/src/SetPriceDialog.cpp",
+  "file": "/home/hcampa/asdKeypad_cpp/src/SetPriceDialog.cpp"
+}
+]

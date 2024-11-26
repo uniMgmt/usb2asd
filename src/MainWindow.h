@@ -12,6 +12,8 @@
 #include "MockSerialCommunication.h"
 #include "AutoKeypress.h"
 #include <QMenuBar>
+#include <QTextEdit>
+#include <QSplitter>
 
 class MainWindow : public QMainWindow
 {
@@ -73,6 +75,11 @@ private:
     bool m_showKeepaliveLogs;
     QAction* m_toggleKeepaliveAction;
     QAction* m_showKeepaliveLogsAction;
+
+    QTextEdit *m_consoleOutput;
+    QSplitter *m_mainSplitter;
+
+    static void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 };
 
 #endif // MAINWINDOW_H

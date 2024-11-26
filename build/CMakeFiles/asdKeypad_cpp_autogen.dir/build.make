@@ -68,7 +68,7 @@ include CMakeFiles/asdKeypad_cpp_autogen.dir/progress.make
 
 CMakeFiles/asdKeypad_cpp_autogen:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/hcampa/asdKeypad_cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Automatic MOC and UIC for target asdKeypad_cpp"
-	/usr/bin/cmake -E cmake_autogen /home/hcampa/asdKeypad_cpp/build/CMakeFiles/asdKeypad_cpp_autogen.dir/AutogenInfo.json Release
+	/usr/bin/cmake -E cmake_autogen /home/hcampa/asdKeypad_cpp/build/CMakeFiles/asdKeypad_cpp_autogen.dir/AutogenInfo.json Debug
 
 asdKeypad_cpp_autogen: CMakeFiles/asdKeypad_cpp_autogen
 asdKeypad_cpp_autogen: CMakeFiles/asdKeypad_cpp_autogen.dir/build.make

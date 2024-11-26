@@ -9,6 +9,8 @@
 #include "AutoKeypress.h"
 #include "Colors.h"
 #include "SetPriceDialog.h"
+#include <QTextEdit>
+#include <QSplitter>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -45,31 +47,32 @@ void MainWindow::setupUi()
 {
     setWindowTitle("asdKeypad C++ Port");
     
-    QWidget *centralWidget = new QWidget(this);
-    setCentralWidget(centralWidget);
+    // Create main splitter
+    m_mainSplitter = new QSplitter(Qt::Horizontal, this);
+    setCentralWidget(m_mainSplitter);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
-    
-    // Set window background color
-    QPalette pal = palette();
-    pal.setColor(QPalette::Window, AppColors::Brown);
-    pal.setColor(QPalette::WindowText, AppColors::Gold);
-    setPalette(pal);
-
-    // Style for buttons
-    QString buttonStyle = QString(
-        "QPushButton {"
+    // Create and setup console output widget
+    m_consoleOutput = new QTextEdit(this);
+    m_consoleOutput->setReadOnly(true);
+    m_consoleOutput->setFont(QFont("Courier", 9));
+    m_consoleOutput->setStyleSheet(QString(
+        "QTextEdit {"
         "    background-color: %1;"
         "    color: %2;"
         "    border: 2px solid %3;"
-        "    border-radius: 5px;"
-        "    padding: 5px;"
         "}"
-        "QPushButton:hover {"
-        "    background-color: %3;"
-        "    color: %2;"
-        "}"
-    ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name());
+    ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name()));
+
+    // Create widget for keypad interface
+    QWidget *keypadWidget = new QWidget(this);
+    QVBoxLayout *keypadLayout = new QVBoxLayout(keypadWidget);
+
+    // Add widgets to splitter
+    m_mainSplitter->addWidget(m_consoleOutput);
+    m_mainSplitter->addWidget(keypadWidget);
+
+    // Set initial sizes (adjust these values as needed)
+    m_mainSplitter->setSizes(QList<int>() << 400 << 400);
 
     // Serial port controls
     QHBoxLayout *portLayout = new QHBoxLayout();
@@ -84,23 +87,23 @@ void MainWindow::setupUi()
     portLayout->addWidget(m_portComboBox);
     portLayout->addWidget(m_connectButton);
     portLayout->addWidget(m_portStatusLabel);
-    mainLayout->addLayout(portLayout);
+    keypadLayout->addLayout(portLayout);
 
     // Display
     m_display = new QLineEdit(this);
     m_display->setReadOnly(true);
     m_display->setAlignment(Qt::AlignRight);
-    mainLayout->addWidget(m_display);
+    keypadLayout->addWidget(m_display);
 
     // Keypad
-    QGridLayout *keypadLayout = new QGridLayout();
-    mainLayout->addLayout(keypadLayout);
+    QGridLayout *numpadLayout = new QGridLayout();
+    keypadLayout->addLayout(numpadLayout);
 
     const char* buttonLabels[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"};
     for (int i = 0; i < 12; ++i) {
         m_buttons[i] = new QPushButton(buttonLabels[i], this);
         connect(m_buttons[i], &QPushButton::clicked, this, &MainWindow::onDigitClicked);
-        keypadLayout->addWidget(m_buttons[i], i / 3, i % 3);
+        numpadLayout->addWidget(m_buttons[i], i / 3, i % 3);
         m_buttons[i]->setStyleSheet(buttonStyle);
     }
 
@@ -110,19 +113,19 @@ void MainWindow::setupUi()
     m_enterButton = new QPushButton("Enter", this);
     controlLayout->addWidget(m_clearButton);
     controlLayout->addWidget(m_enterButton);
-    mainLayout->addLayout(controlLayout);
+    keypadLayout->addLayout(controlLayout);
     m_clearButton->setStyleSheet(buttonStyle);
     m_enterButton->setStyleSheet(buttonStyle);
 
     // Add Auto Keypress button
     m_autoKeypressButton = new QPushButton("Start Auto Keypress", this);
     m_autoKeypressButton->setCheckable(true);
-    mainLayout->addWidget(m_autoKeypressButton);
+    keypadLayout->addWidget(m_autoKeypressButton);
     m_autoKeypressButton->setStyleSheet(buttonStyle);
 
     // Log list
     m_logList = new QListWidget(this);
-    mainLayout->addWidget(m_logList);
+    keypadLayout->addWidget(m_logList);
 
     // Connect signals and slots
     connect(m_clearButton, &QPushButton::clicked, this, &MainWindow::onClearClicked);
@@ -174,6 +177,9 @@ void MainWindow::setupUi()
     ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name());
 
     m_logList->setStyleSheet(listWidgetStyle);
+
+    // Install event filter to capture qDebug output
+    qInstallMessageHandler(MainWindow::messageHandler);
 }
 
 void MainWindow::setupMenuBar()
@@ -261,13 +267,13 @@ void MainWindow::onAutoKeypressKeyPressed(const QString &key)
 void MainWindow::logAction(const QString &action)
 {
     m_logList->addItem(action);
-    qDebug() << action;
+    appendToConsole(QString("Action: %1").arg(action));
 }
 
 void MainWindow::errorLog(const QString &error)
 {
     m_logList->addItem("ERROR: " + error);
-    qDebug() << "ERROR:" << error;
+    appendToConsole(QString("ERROR: %1").arg(error));
 }
 
 void MainWindow::onDigitClicked()
@@ -502,4 +508,38 @@ void MainWindow::onToggleKeepalive(bool enable)
             m_showKeepaliveLogsAction->setChecked(false);  // Uncheck logs when disabling keepalive
         }
     }
+}
+
+void MainWindow::messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QString txt;
+    switch (type) {
+    case QtDebugMsg:
+        txt = QString("Debug: %1").arg(msg);
+        break;
+    case QtWarningMsg:
+        txt = QString("Warning: %1").arg(msg);
+        break;
+    case QtCriticalMsg:
+        txt = QString("Critical: %1").arg(msg);
+        break;
+    case QtFatalMsg:
+        txt = QString("Fatal: %1").arg(msg);
+        break;
+    }
+
+    // Get the MainWindow instance
+    QWidgetList widgets = QApplication::topLevelWidgets();
+    for (QWidget *widget : widgets) {
+        if (MainWindow *mainWindow = qobject_cast<MainWindow*>(widget)) {
+            QMetaObject::invokeMethod(mainWindow, "appendToConsole", 
+                Qt::QueuedConnection, Q_ARG(QString, txt));
+            break;
+        }
+    }
+}
+
+void MainWindow::appendToConsole(const QString &text)
+{
+    m_consoleOutput->append(text);
 }
