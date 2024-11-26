@@ -56,7 +56,6 @@ private:
     QPushButton *m_connectButton;
     QComboBox *m_portComboBox;
     QLabel *m_portStatusLabel;
-    QListWidget *m_logList;
     SerialCommunication *m_serialComm;
     MockSerialCommunication *m_mockSerialComm;
     KeypressCommands *m_keypressCommands;

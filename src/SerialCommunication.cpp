@@ -195,7 +195,6 @@ QStringList SerialCommunication::getAvailablePorts()
 
 bool SerialCommunication::openPort(const QString &portName, const SerialConfig &config)
 {
-    // Ensure we're not already trying to open the port
     static bool isOpening = false;
     if (isOpening) return false;
     isOpening = true;
@@ -205,76 +204,71 @@ bool SerialCommunication::openPort(const QString &portName, const SerialConfig &
             closePort();
         }
 
-        // Force close any existing connections to this port
+        // Add initial delay to allow port to stabilize
+        QThread::msleep(250);
+
         QString actualPortName = portName.split(" ").first();
         bool portExists = false;
         
         for (const auto& info : QSerialPortInfo::availablePorts()) {
             if (info.portName() == actualPortName) {
                 portExists = true;
-                QSerialPort tempPort(info);
-                if (tempPort.isOpen()) {
-                    tempPort.close();
-                }
                 break;
             }
         }
 
         if (!portExists) {
-            QString error = QString("Port %1 not found").arg(actualPortName);
-            logError(error);
+            logError(QString("Port %1 not found").arg(actualPortName));
             isOpening = false;
             return false;
         }
 
-        // Add a delay after closing
-        QThread::msleep(250);
-
+        // Configure port
         m_serialPort->setPortName(actualPortName);
         m_serialPort->setBaudRate(config.baudRate);
         m_serialPort->setDataBits(config.dataBits);
         m_serialPort->setParity(config.parity);
         m_serialPort->setStopBits(config.stopBits);
         m_serialPort->setFlowControl(config.flowControl);
-
-        // Set additional port parameters for Windows
-        #ifdef Q_OS_WIN
-            m_serialPort->setReadBufferSize(1024);
-            m_serialPort->setDataTerminalReady(true);
-            m_serialPort->setRequestToSend(true);
-        #endif
+        m_serialPort->setReadBufferSize(1024);
 
         // Attempt to open with timeout
         QElapsedTimer timer;
         timer.start();
-        const int openTimeout = 2000; // 2 second timeout
+        const int openTimeout = 2000;
 
         while (timer.elapsed() < openTimeout) {
             if (m_serialPort->open(QIODevice::ReadWrite)) {
-                m_serialPort->clear();
-                m_serialPort->flush();
-                
-                emit normalMessage(QString("Successfully opened port %1").arg(actualPortName));
-                emit portStatusChanged(true);
-                
-                if (m_keepaliveEnabled) {
-                    m_keepaliveTimer.start();
+                // Only set DTR and RTS if port is confirmed open
+                if (m_serialPort->isOpen()) {
+                    QThread::msleep(100);  // Allow port to stabilize
+                    
+                    #ifdef Q_OS_WIN
+                    m_serialPort->setDataTerminalReady(true);
+                    m_serialPort->setRequestToSend(true);
+                    #endif
+                    
+                    m_serialPort->clear();
+                    m_serialPort->flush();
+                    
+                    emit normalMessage(QString("Successfully opened port %1").arg(actualPortName));
+                    emit portStatusChanged(true);
+                    
+                    if (m_keepaliveEnabled) {
+                        m_keepaliveTimer.start();
+                    }
+                    m_watchdogTimer.start();
+                    
+                    isOpening = false;
+                    return true;
                 }
-                m_watchdogTimer.start();
-                
-                isOpening = false;
-                return true;
             }
             
             QThread::msleep(100);
             QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         }
 
-        QString errorDetails = QString("Failed to open port %1: %2 (Error: %3)")
-            .arg(actualPortName)
-            .arg(m_serialPort->errorString())
-            .arg(m_serialPort->error());
-        logError(errorDetails);
+        logError(QString("Failed to open port %1: %2").arg(actualPortName, m_serialPort->errorString()));
         
     } catch (const std::exception& e) {
         logError(QString("Exception while opening port: %1").arg(e.what()));

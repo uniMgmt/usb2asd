@@ -135,10 +135,6 @@ void MainWindow::setupUi()
     keypadLayout->addWidget(m_autoKeypressButton);
     m_autoKeypressButton->setStyleSheet(buttonStyle);
 
-    // Log list
-    m_logList = new QListWidget(this);
-    keypadLayout->addWidget(m_logList);
-
     // Connect signals and slots
     connect(m_clearButton, &QPushButton::clicked, this, &MainWindow::onClearClicked);
     connect(m_enterButton, &QPushButton::clicked, this, &MainWindow::onEnterClicked);
@@ -278,13 +274,11 @@ void MainWindow::onAutoKeypressKeyPressed(const QString &key)
 
 void MainWindow::logAction(const QString &action)
 {
-    m_logList->addItem(action);
     appendToConsole(QString("Action: %1").arg(action));
 }
 
 void MainWindow::errorLog(const QString &error)
 {
-    m_logList->addItem("ERROR: " + error);
     appendToConsole(QString("ERROR: %1").arg(error));
 }
 
