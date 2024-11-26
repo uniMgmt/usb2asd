@@ -47,6 +47,7 @@ private:
     void logAction(const QString &action);
     void errorLog(const QString &error);
     void connectSignalsAndSlots();
+    Q_INVOKABLE void appendToConsole(const QString &text);
 
     QLineEdit *m_display;
     QPushButton *m_buttons[12];

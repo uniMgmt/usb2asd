@@ -45,6 +45,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupUi()
 {
+    QString buttonStyle = QString(
+        "QPushButton {"
+        "    background-color: %1;"
+        "    color: %2;"
+        "    border: 2px solid %3;"
+        "    border-radius: 5px;"
+        "}"
+        "QPushButton:pressed {"
+        "    background-color: %3;"
+        "}"
+    ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name());
+
     setWindowTitle("asdKeypad C++ Port");
     
     // Create main splitter
