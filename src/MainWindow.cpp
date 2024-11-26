@@ -336,26 +336,21 @@ void MainWindow::onEnterClicked()
 void MainWindow::onConnectClicked()
 {
     try {
-        if (m_useMockSerial) {
-            if (m_mockSerialComm->isPortOpen()) {
-                m_mockSerialComm->closePort();
-            } else {
-                QString portName = m_portComboBox->currentText();
-                if (m_mockSerialComm->openPort(portName)) {
-                    logAction("Connected to mock port: " + portName);
-                } else {
-                    errorLog("Failed to connect to mock port: " + portName);
-                }
-            }
-        } else {
+        QString portName = m_portComboBox->currentText();
+        
+        if (!m_useMockSerial) {
             if (m_serialComm->isPortOpen()) {
                 m_serialComm->closePort();
             } else {
-                QString portName = m_portComboBox->currentText();
+                // Check port availability first
+                if (!m_serialComm->isPortAvailable(portName)) {
+                    errorLog(QString("Port %1 is not available or is in use by another application").arg(portName));
+                    return;
+                }
+
                 qDebug() << "Attempting to connect to port:" << portName;
                 
                 SerialCommunication::SerialConfig config;
-                // Explicitly set serial configuration
                 config.baudRate = QSerialPort::Baud9600;
                 config.dataBits = QSerialPort::Data8;
                 config.parity = QSerialPort::NoParity;
@@ -369,6 +364,7 @@ void MainWindow::onConnectClicked()
                 }
             }
         }
+        // ... rest of the mock serial handling ...
     } catch (const std::exception& e) {
         errorLog(QString("Exception during connect: %1").arg(e.what()));
     } catch (...) {

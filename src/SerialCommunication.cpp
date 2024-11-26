@@ -63,16 +63,40 @@ void SerialCommunication::sendKeepalive()
 void SerialCommunication::closePort()
 {
     m_watchdogTimer.stop();
-    m_keepaliveTimer.stop();  // Stop keepalive timer
+    m_keepaliveTimer.stop();
     
     if (m_serialPort->isOpen()) {
-        m_serialPort->clear();
-        m_serialPort->flush();
-        m_serialPort->close();
-        qDebug() << QDateTime::currentDateTime().toString()
-                 << "- Closed port:" << m_serialPort->portName();
-        emit portStatusChanged(false);
+        try {
+            // Ensure all data is written before closing
+            m_serialPort->flush();
+            
+            // Wait for any pending operations
+            QThread::msleep(100);
+            
+            // Clear buffers
+            m_serialPort->clear();
+            
+            // Reset control lines
+            m_serialPort->setDataTerminalReady(false);
+            m_serialPort->setRequestToSend(false);
+            
+            // Close the port
+            m_serialPort->close();
+            
+            qDebug() << QDateTime::currentDateTime().toString()
+                     << "- Closed port:" << m_serialPort->portName();
+                     
+            // Clear any remaining data in our buffer
+            m_responseBuffer.clear();
+            
+        } catch (const std::exception& e) {
+            qDebug() << "Exception during port closure:" << e.what();
+        } catch (...) {
+            qDebug() << "Unknown exception during port closure";
+        }
     }
+    
+    emit portStatusChanged(false);
 }
 
 bool SerialCommunication::sendCommand(const QByteArray &command)
@@ -171,54 +195,83 @@ QStringList SerialCommunication::getAvailablePorts()
 
 bool SerialCommunication::openPort(const QString &portName, const SerialConfig &config)
 {
-    if (m_serialPort->isOpen()) {
-        closePort();
-    }
+    // Ensure we're not already trying to open the port
+    static bool isOpening = false;
+    if (isOpening) return false;
+    isOpening = true;
 
-    // Add a small delay after closing the port
-    QThread::msleep(100);
-
-    // Extract just the COM port name from the description
-    QString actualPortName = portName.split(" ").first();
-    m_serialPort->setPortName(actualPortName);
-
-    // Configure port settings
-    m_serialPort->setBaudRate(config.baudRate);
-    m_serialPort->setDataBits(config.dataBits);
-    m_serialPort->setParity(config.parity);
-    m_serialPort->setStopBits(config.stopBits);
-    m_serialPort->setFlowControl(config.flowControl);
-
-    // Add timeout for opening the port
-    QElapsedTimer timer;
-    timer.start();
-    const int openTimeout = 1000; // 1 second timeout
-
-    while (timer.elapsed() < openTimeout) {
-        if (m_serialPort->open(QIODevice::ReadWrite)) {
-            // Clear any existing data
-            m_serialPort->clear();
-            m_serialPort->flush();
-
-            emit normalMessage(QString("Successfully opened port %1").arg(actualPortName));
-            emit portStatusChanged(true);
-            
-            m_watchdogTimer.start();
-            if (m_keepaliveEnabled) {
-                m_keepaliveTimer.start();
-            }
-            return true;
+    try {
+        if (m_serialPort->isOpen()) {
+            closePort();
         }
+
+        // Force close any existing connections to this port
+        QString actualPortName = portName.split(" ").first();
+        for (const auto& info : QSerialPortInfo::availablePorts()) {
+            if (info.portName() == actualPortName && info.isValid()) {
+                QSerialPort tempPort(info);
+                if (tempPort.isOpen()) {
+                    tempPort.close();
+                }
+            }
+        }
+
+        // Add a delay after closing
+        QThread::msleep(250);
+
+        m_serialPort->setPortName(actualPortName);
+        m_serialPort->setBaudRate(config.baudRate);
+        m_serialPort->setDataBits(config.dataBits);
+        m_serialPort->setParity(config.parity);
+        m_serialPort->setStopBits(config.stopBits);
+        m_serialPort->setFlowControl(config.flowControl);
+
+        // Set additional port parameters for Windows
+        #ifdef Q_OS_WIN
+            m_serialPort->setReadBufferSize(1024);
+            m_serialPort->setDataTerminalReady(true);
+            m_serialPort->setRequestToSend(true);
+        #endif
+
+        // Attempt to open with timeout
+        QElapsedTimer timer;
+        timer.start();
+        const int openTimeout = 2000; // 2 second timeout
+
+        while (timer.elapsed() < openTimeout) {
+            if (m_serialPort->open(QIODevice::ReadWrite)) {
+                m_serialPort->clear();
+                m_serialPort->flush();
+                
+                emit normalMessage(QString("Successfully opened port %1").arg(actualPortName));
+                emit portStatusChanged(true);
+                
+                if (m_keepaliveEnabled) {
+                    m_keepaliveTimer.start();
+                }
+                m_watchdogTimer.start();
+                
+                isOpening = false;
+                return true;
+            }
+            
+            QThread::msleep(100);
+            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        }
+
+        QString errorDetails = QString("Failed to open port %1: %2 (Error: %3)")
+            .arg(actualPortName)
+            .arg(m_serialPort->errorString())
+            .arg(m_serialPort->error());
+        logError(errorDetails);
         
-        QThread::msleep(100);
-        QCoreApplication::processEvents();
+    } catch (const std::exception& e) {
+        logError(QString("Exception while opening port: %1").arg(e.what()));
+    } catch (...) {
+        logError("Unknown exception while opening port");
     }
 
-    QString errorDetails = QString("Failed to open port %1: %2 (Error: %3)")
-        .arg(actualPortName)
-        .arg(m_serialPort->errorString())
-        .arg(m_serialPort->error());
-    logError(errorDetails);
+    isOpening = false;
     emit portStatusChanged(false);
     return false;
 }
@@ -354,4 +407,27 @@ void SerialCommunication::enableKeepalive(bool enable)
 bool SerialCommunication::isKeepaliveEnabled() const
 {
     return m_keepaliveEnabled;
+}
+
+bool SerialCommunication::isPortAvailable(const QString &portName) const
+{
+    QString actualPortName = portName.split(" ").first();
+    for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
+        if (info.portName() == actualPortName) {
+            return checkPortAccess(actualPortName);
+        }
+    }
+    return false;
+}
+
+bool SerialCommunication::checkPortAccess(const QString &portName) const
+{
+    QSerialPort testPort;
+    testPort.setPortName(portName);
+    
+    if (testPort.open(QIODevice::ReadWrite)) {
+        testPort.close();
+        return true;
+    }
+    return false;
 }

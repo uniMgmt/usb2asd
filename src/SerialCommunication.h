@@ -42,6 +42,7 @@ public:
     QString getCurrentPortName() const;
     void enableKeepalive(bool enable);
     bool isKeepaliveEnabled() const;
+    bool isPortAvailable(const QString &portName) const;
 
 signals:
     void portStatusChanged(bool isOpen);
@@ -78,6 +79,7 @@ private:
 #endif
 
     QByteArray m_lastCommand;  // Add this to track command type
+    bool checkPortAccess(const QString &portName) const;
 };
 
 #endif // SERIALCOMMUNICATION_H
