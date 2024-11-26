@@ -12,6 +12,7 @@
 SerialCommunication::SerialCommunication(QObject *parent)
     : QObject(parent)
     , m_serialPort(new QSerialPort(this))
+    , m_keepaliveEnabled(false)
 {
     m_defaultPort = getDefaultPort();
     
@@ -215,7 +216,9 @@ bool SerialCommunication::openPort(const QString &portName, const SerialConfig &
 
     emit portStatusChanged(true);
     m_watchdogTimer.start();
-    m_keepaliveTimer.start();  // Start keepalive timer
+    if (m_keepaliveEnabled) {
+        m_keepaliveTimer.start();
+    }
     return true;
 }
 
@@ -336,3 +339,18 @@ bool SerialCommunication::testResponseTimes()
     return successCount > 0;
 }
 #endif
+
+void SerialCommunication::enableKeepalive(bool enable)
+{
+    m_keepaliveEnabled = enable;
+    if (enable && m_serialPort->isOpen()) {
+        m_keepaliveTimer.start();
+    } else {
+        m_keepaliveTimer.stop();
+    }
+}
+
+bool SerialCommunication::isKeepaliveEnabled() const
+{
+    return m_keepaliveEnabled;
+}

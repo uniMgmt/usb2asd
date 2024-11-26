@@ -37,6 +37,7 @@ private slots:
     void onToggleKeepaliveLogs(bool show);
     void onKeepaliveMessage(const QString &message);
     void onNormalMessage(const QString &message);
+    void onToggleKeepalive(bool enable);
 
 private:
     void setupUi();
@@ -70,6 +71,8 @@ private:
     void showSetPriceDialog();
 
     bool m_showKeepaliveLogs;
+    QAction* m_toggleKeepaliveAction;
+    QAction* m_showKeepaliveLogsAction;
 };
 
 #endif // MAINWINDOW_H

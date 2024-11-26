@@ -192,11 +192,18 @@ void MainWindow::setupMenuBar()
     toolsMenu->addAction(tr("Clear VMC &Error"), this, &MainWindow::onClearVMCErrorClicked);
     toolsMenu->addAction(tr("Set VMC &Prices"), this, &MainWindow::onSetVMCPricesClicked);
 
-    // Add toggle action to Tools menu
-    QAction* toggleKeepaliveAction = toolsMenu->addAction(tr("Show &Keepalive Logs"));
-    toggleKeepaliveAction->setCheckable(true);
-    toggleKeepaliveAction->setChecked(false);  // Default to hidden
-    connect(toggleKeepaliveAction, &QAction::toggled, this, &MainWindow::onToggleKeepaliveLogs);
+    // Add keepalive mechanism toggle
+    m_toggleKeepaliveAction = toolsMenu->addAction(tr("Enable &Keepalive"));
+    m_toggleKeepaliveAction->setCheckable(true);
+    m_toggleKeepaliveAction->setChecked(false);
+    connect(m_toggleKeepaliveAction, &QAction::toggled, this, &MainWindow::onToggleKeepalive);
+
+    // Add keepalive logs toggle
+    m_showKeepaliveLogsAction = toolsMenu->addAction(tr("Show &Keepalive Logs"));
+    m_showKeepaliveLogsAction->setCheckable(true);
+    m_showKeepaliveLogsAction->setChecked(false);
+    m_showKeepaliveLogsAction->setEnabled(false);  // Disabled by default
+    connect(m_showKeepaliveLogsAction, &QAction::toggled, this, &MainWindow::onToggleKeepaliveLogs);
 
     // Add actions to Help menu
     helpMenu->addAction(tr("&About"), this, &MainWindow::onAboutClicked);
@@ -484,4 +491,15 @@ void MainWindow::onKeepaliveMessage(const QString &message)
 void MainWindow::onNormalMessage(const QString &message)
 {
     logAction(message);  // Always show normal messages
+}
+
+void MainWindow::onToggleKeepalive(bool enable)
+{
+    if (!m_useMockSerial) {
+        m_serialComm->enableKeepalive(enable);
+        m_showKeepaliveLogsAction->setEnabled(enable);  // Enable/disable logs option
+        if (!enable) {
+            m_showKeepaliveLogsAction->setChecked(false);  // Uncheck logs when disabling keepalive
+        }
+    }
 }

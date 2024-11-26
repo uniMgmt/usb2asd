@@ -40,6 +40,8 @@ public:
     bool isPortOpen() const;
     QString getLastError() const { return m_lastError; }
     QString getCurrentPortName() const;
+    void enableKeepalive(bool enable);
+    bool isKeepaliveEnabled() const;
 
 signals:
     void portStatusChanged(bool isOpen);
@@ -58,6 +60,7 @@ private:
     QString m_lastError;
     QTimer m_watchdogTimer;
     QTimer m_keepaliveTimer;
+    bool m_keepaliveEnabled;
     static const int COMMAND_TIMEOUT_MS = 100;     // Time to wait for command to be written
     static const int RESPONSE_TIMEOUT_MS = 250;    // Time to wait for response
     static const int WATCHDOG_TIMEOUT_MS = 1000;   // Watchdog interval
