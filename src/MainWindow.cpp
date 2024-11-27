@@ -157,29 +157,38 @@ void MainWindow::setupUi()
     // Style for display
     QString displayStyle = QString(
         "QLineEdit {"
-        "    background-color: %1;"
-        "    color: %2;"
-        "    border: 2px solid %3;"
+        "    background-color: #27201b;"
+        "    color: white;"
+        "    border: 2px solid white;"
         "    border-radius: 5px;"
         "    padding: 5px;"
         "}"
-    ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name());
+    );
 
     m_display->setStyleSheet(displayStyle);
 
     // Style for combo box
     QString comboBoxStyle = QString(
         "QComboBox {"
-        "    background-color: %1;"
-        "    color: %2;"
-        "    border: 2px solid %3;"
+        "    background-color: #2c4acc;"  // Blue background for the main box
+        "    color: white;"
+        "    border: 2px solid white;"
         "    border-radius: 5px;"
         "    padding: 5px;"
         "}"
         "QComboBox::drop-down {"
         "    border: none;"
         "}"
-    ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name());
+        "QComboBox::down-arrow {"
+        "    image: none;"  // Remove default arrow
+        "}"
+        "QComboBox QAbstractItemView {"
+        "    background-color: #27201b;"  // Gray background for dropdown items
+        "    color: white;"
+        "    selection-background-color: #2c4acc;"  // Blue highlight when selected
+        "    selection-color: white;"
+        "}"
+    );
 
     m_portComboBox->setStyleSheet(comboBoxStyle);
 
@@ -225,13 +234,21 @@ void MainWindow::setupMenuBar()
     // Set the menu bar style
     m_menuBar->setStyleSheet(QString(
         "QMenuBar {"
-        "    background-color: %1;"
-        "    color: %2;"
+        "    background-color: #27201b;"
+        "    color: white;"
         "}"
         "QMenuBar::item:selected {"
-        "    background-color: %3;"
+        "    background-color: #2c4acc;"
         "}"
-    ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name()));
+        "QMenu {"
+        "    background-color: #27201b;"
+        "    color: white;"
+        "    border: 1px solid white;"
+        "}"
+        "QMenu::item:selected {"
+        "    background-color: #2c4acc;"
+        "}"
+    ));
 }
 
 void MainWindow::setupAutoKeypress()
