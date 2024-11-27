@@ -47,15 +47,16 @@ void MainWindow::setupUi()
 {
     QString buttonStyle = QString(
         "QPushButton {"
-        "    background-color: %1;"
-        "    color: %2;"
-        "    border: 2px solid %3;"
+        "    background-color: #2c4acc;"
+        "    color: white;"
+        "    border: 2px solid white;"
         "    border-radius: 5px;"
         "}"
         "QPushButton:pressed {"
-        "    background-color: %3;"
+        "    background-color: white;"
+        "    color: #2c4acc;"
         "}"
-    ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name());
+    );
 
     setWindowTitle("asdKeypad C++ Port");
     
@@ -69,11 +70,11 @@ void MainWindow::setupUi()
     m_consoleOutput->setFont(QFont("Courier", 9));
     m_consoleOutput->setStyleSheet(QString(
         "QTextEdit {"
-        "    background-color: %1;"
-        "    color: %2;"
-        "    border: 2px solid %3;"
+        "    background-color: white;"
+        "    color: black;"
+        "    border: 2px solid white;"
         "}"
-    ).arg(AppColors::Brown.name(), AppColors::Gold.name(), AppColors::Beige.name()));
+    ));
 
     // Create widget for keypad interface
     QWidget *keypadWidget = new QWidget(this);
@@ -184,6 +185,9 @@ void MainWindow::setupUi()
 
     // Install event filter to capture qDebug output
     qInstallMessageHandler(MainWindow::messageHandler);
+
+    // Update main window background color
+    setStyleSheet("background-color: #27201b;");  // Grayish background
 }
 
 void MainWindow::setupMenuBar()
