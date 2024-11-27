@@ -317,40 +317,49 @@ void MainWindow::onEnterClicked()
 
 void MainWindow::onConnectClicked()
 {
+    // Disable the connect button to prevent multiple clicks
+    m_connectButton->setEnabled(false);
+    
     try {
         QString portName = m_portComboBox->currentText();
         
         if (!m_useMockSerial) {
             if (m_serialComm->isPortOpen()) {
                 m_serialComm->closePort();
-            } else {
-                // Check port availability first
-                if (!m_serialComm->isPortAvailable(portName)) {
-                    errorLog(QString("Port %1 is not available or is in use by another application").arg(portName));
-                    return;
-                }
-
-                qDebug() << "Attempting to connect to port:" << portName;
-                
-                SerialCommunication::SerialConfig config;
-                config.baudRate = QSerialPort::Baud9600;
-                config.dataBits = QSerialPort::Data8;
-                config.parity = QSerialPort::NoParity;
-                config.stopBits = QSerialPort::OneStop;
-                config.flowControl = QSerialPort::NoFlowControl;
-
-                if (m_serialComm->openPort(portName, config)) {
-                    logAction("Connected to port: " + portName);
-                } else {
-                    errorLog("Failed to connect to port: " + portName);
-                }
+                m_connectButton->setEnabled(true);
+                return;
             }
+
+            // Use QTimer to handle the connection asynchronously
+            QTimer::singleShot(0, this, [this, portName]() {
+                try {
+                    if (!m_serialComm->isPortAvailable(portName)) {
+                        errorLog(QString("Port %1 is not available or is in use").arg(portName));
+                        m_connectButton->setEnabled(true);
+                        return;
+                    }
+
+                    SerialCommunication::SerialConfig config;
+                    if (m_serialComm->openPort(portName, config)) {
+                        logAction("Connected to port: " + portName);
+                    } else {
+                        errorLog("Failed to connect to port: " + portName);
+                    }
+                } catch (const std::exception& e) {
+                    errorLog(QString("Exception during connect: %1").arg(e.what()));
+                } catch (...) {
+                    errorLog("Unknown exception during connect");
+                }
+                
+                m_connectButton->setEnabled(true);
+            });
         }
-        // ... rest of the mock serial handling ...
     } catch (const std::exception& e) {
-        errorLog(QString("Exception during connect: %1").arg(e.what()));
+        errorLog(QString("Exception during connect setup: %1").arg(e.what()));
+        m_connectButton->setEnabled(true);
     } catch (...) {
-        errorLog("Unknown exception during connect");
+        errorLog("Unknown exception during connect setup");
+        m_connectButton->setEnabled(true);
     }
 }
 

@@ -68,10 +68,12 @@ void SerialCommunication::closePort()
     if (m_serialPort->isOpen()) {
         try {
             // Ensure all data is written before closing
-            m_serialPort->flush();
+            if (!m_serialPort->flush()) {
+                qDebug() << "Warning: Failed to flush port";
+            }
             
-            // Wait for any pending operations
-            QThread::msleep(100);
+            // Brief pause
+            QThread::msleep(50);
             
             // Clear buffers
             m_serialPort->clear();
@@ -204,25 +206,8 @@ bool SerialCommunication::openPort(const QString &portName, const SerialConfig &
             closePort();
         }
 
-        // Add initial delay to allow port to stabilize
-        QThread::msleep(250);
-
         QString actualPortName = portName.split(" ").first();
-        bool portExists = false;
         
-        for (const auto& info : QSerialPortInfo::availablePorts()) {
-            if (info.portName() == actualPortName) {
-                portExists = true;
-                break;
-            }
-        }
-
-        if (!portExists) {
-            logError(QString("Port %1 not found").arg(actualPortName));
-            isOpening = false;
-            return false;
-        }
-
         // Configure port
         m_serialPort->setPortName(actualPortName);
         m_serialPort->setBaudRate(config.baudRate);
@@ -232,44 +217,43 @@ bool SerialCommunication::openPort(const QString &portName, const SerialConfig &
         m_serialPort->setFlowControl(config.flowControl);
         m_serialPort->setReadBufferSize(1024);
 
-        // Attempt to open with timeout
-        QElapsedTimer timer;
-        timer.start();
-        const int openTimeout = 2000;
-
-        while (timer.elapsed() < openTimeout) {
-            if (m_serialPort->open(QIODevice::ReadWrite)) {
-                // Only set DTR and RTS if port is confirmed open
-                if (m_serialPort->isOpen()) {
-                    QThread::msleep(100);  // Allow port to stabilize
-                    
-                    #ifdef Q_OS_WIN
-                    m_serialPort->setDataTerminalReady(true);
-                    m_serialPort->setRequestToSend(true);
-                    #endif
-                    
-                    m_serialPort->clear();
-                    m_serialPort->flush();
-                    
-                    emit normalMessage(QString("Successfully opened port %1").arg(actualPortName));
-                    emit portStatusChanged(true);
-                    
-                    if (m_keepaliveEnabled) {
-                        m_keepaliveTimer.start();
-                    }
-                    m_watchdogTimer.start();
-                    
-                    isOpening = false;
-                    return true;
-                }
-            }
-            
-            QThread::msleep(100);
-            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        // Single attempt to open port
+        if (!m_serialPort->open(QIODevice::ReadWrite)) {
+            QString errorMsg = QString("Failed to open port %1: %2")
+                             .arg(actualPortName, m_serialPort->errorString());
+            logError(errorMsg);
+            isOpening = false;
+            return false;
         }
 
-        logError(QString("Failed to open port %1: %2").arg(actualPortName, m_serialPort->errorString()));
+        // Brief pause for port to stabilize
+        QThread::msleep(100);
         
+        if (!m_serialPort->isOpen()) {
+            logError("Port closed unexpectedly after opening");
+            isOpening = false;
+            return false;
+        }
+
+        #ifdef Q_OS_WIN
+        m_serialPort->setDataTerminalReady(true);
+        m_serialPort->setRequestToSend(true);
+        #endif
+        
+        m_serialPort->clear();
+        m_serialPort->flush();
+        
+        emit normalMessage(QString("Successfully opened port %1").arg(actualPortName));
+        emit portStatusChanged(true);
+        
+        if (m_keepaliveEnabled) {
+            m_keepaliveTimer.start();
+        }
+        m_watchdogTimer.start();
+        
+        isOpening = false;
+        return true;
+
     } catch (const std::exception& e) {
         logError(QString("Exception while opening port: %1").arg(e.what()));
     } catch (...) {
