@@ -78,13 +78,15 @@ void MainWindow::setupUi()
     // Create widget for keypad interface
     QWidget *keypadWidget = new QWidget(this);
     QVBoxLayout *keypadLayout = new QVBoxLayout(keypadWidget);
+    keypadLayout->setContentsMargins(5, 5, 5, 5);  // Reduce margins
+    keypadLayout->setSpacing(5);  // Reduce spacing
 
     // Add widgets to splitter
     m_mainSplitter->addWidget(m_consoleOutput);
     m_mainSplitter->addWidget(keypadWidget);
 
-    // Set initial sizes (adjust these values as needed)
-    m_mainSplitter->setSizes(QList<int>() << 400 << 400);
+    // Set initial sizes to give more space to the keypad
+    m_mainSplitter->setSizes(QList<int>() << 300 << 500);
 
     // Serial port controls
     QHBoxLayout *portLayout = new QHBoxLayout();
@@ -105,15 +107,18 @@ void MainWindow::setupUi()
     m_display = new QLineEdit(this);
     m_display->setReadOnly(true);
     m_display->setAlignment(Qt::AlignRight);
+    m_display->setFixedHeight(40);  // Set a reasonable height
     keypadLayout->addWidget(m_display);
 
     // Keypad
     QGridLayout *numpadLayout = new QGridLayout();
+    numpadLayout->setSpacing(5);  // Reduce spacing between buttons
     keypadLayout->addLayout(numpadLayout);
 
     const char* buttonLabels[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"};
     for (int i = 0; i < 12; ++i) {
         m_buttons[i] = new QPushButton(buttonLabels[i], this);
+        m_buttons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         connect(m_buttons[i], &QPushButton::clicked, this, &MainWindow::onDigitClicked);
         numpadLayout->addWidget(m_buttons[i], i / 3, i % 3);
         m_buttons[i]->setStyleSheet(buttonStyle);
@@ -123,6 +128,8 @@ void MainWindow::setupUi()
     QHBoxLayout *controlLayout = new QHBoxLayout();
     m_clearButton = new QPushButton("Clear", this);
     m_enterButton = new QPushButton("Enter", this);
+    m_clearButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_enterButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     controlLayout->addWidget(m_clearButton);
     controlLayout->addWidget(m_enterButton);
     keypadLayout->addLayout(controlLayout);
@@ -132,6 +139,7 @@ void MainWindow::setupUi()
     // Add Auto Keypress button
     m_autoKeypressButton = new QPushButton("Start Auto Keypress", this);
     m_autoKeypressButton->setCheckable(true);
+    m_autoKeypressButton->setFixedHeight(40);  // Set a reasonable height
     keypadLayout->addWidget(m_autoKeypressButton);
     m_autoKeypressButton->setStyleSheet(buttonStyle);
 
