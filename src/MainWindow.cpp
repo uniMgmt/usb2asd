@@ -99,6 +99,11 @@ void MainWindow::setupUi()
     }
     m_connectButton = new QPushButton("Connect", this);
     m_portStatusLabel = new QLabel("Not Connected", this);
+    
+    // Add white text color to connect button and status label
+    m_connectButton->setStyleSheet("color: white;");
+    m_portStatusLabel->setStyleSheet("color: white;");
+    
     portLayout->addWidget(m_portComboBox);
     portLayout->addWidget(m_connectButton);
     portLayout->addWidget(m_portStatusLabel);
